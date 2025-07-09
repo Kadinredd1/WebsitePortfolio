@@ -1,0 +1,20 @@
+{
+  "name": "tech-portfolio",
+  "version": "1.0.0",
+  "description": "Personal technical portfolio showcasing projects and skills",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server",
+    "dev": "live-server --port=3000 --open",
+    "serve": "live-server --host=0.0.0.0 --port=8080",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "echo 'Ready for deployment'",
+    "test": "echo 'No tests yet'"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "serve": "^14.2.4"
+  },
+  "author": "Kadin",
+  "license": "MIT"
+}
