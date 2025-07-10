@@ -124,10 +124,13 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
       const response = await fetch(API_ENDPOINTS.projects);
       if (response.ok) {
         const data = await response.json();
-        setProjects(data);
+        setProjects(Array.isArray(data) ? data : []);
+      } else {
+        setProjects([]);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);
+      setProjects([]);
     }
   };
 
@@ -215,7 +218,7 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
 
       <div className="admin-content">
         <div className="admin-section">
-          <h3>📊 Project Management</h3>
+          <h3>Project Management</h3>
           <p>Manage your portfolio projects</p>
           
           <div className="projects-list">
@@ -231,7 +234,7 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
                     onClick={() => deleteProject(project._id)}
                     className="delete-project-btn"
                   >
-                    🗑️ Delete
+                    Delete
                   </button>
                 </div>
               </div>
@@ -246,7 +249,7 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
         </div>
 
         <div className="admin-section">
-          <h3>📈 Quick Stats</h3>
+          <h3>Quick Stats</h3>
           <div className="stats-grid">
             <div className="stat-card">
               <h4>Total Projects</h4>
