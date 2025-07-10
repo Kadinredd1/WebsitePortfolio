@@ -110,15 +110,15 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <main className="main-content">
         <section className={`content-section ${section === 'projects' ? 'active' : ''}`}>
-          <Projects />
-        </section>
+        <Projects />
+      </section>
         <section className={`content-section ${section === 'github' ? 'active' : ''}`}>
-          <GitHub />
-        </section>
+        <GitHub />
+      </section>
         {isAdmin && (
           <section className={`content-section ${section === 'add' ? 'active' : ''}`}>
-            <AddProject />
-          </section>
+        <AddProject />
+      </section>
         )}
         {/* Admin page as a full page, not modal */}
         {section === 'admin' && (

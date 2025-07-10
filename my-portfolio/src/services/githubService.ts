@@ -114,24 +114,51 @@ class GitHubService {
     }
   }
 
-  // Calculate language statistics from repositories
-  calculateLanguageStats(repos: Repository[]): LanguageStats {
+  // Calculate language statistics from repositories with detailed language breakdown
+  async calculateLanguageStats(repos: Repository[]): Promise<LanguageStats> {
     const languageStats: LanguageStats = {};
-    let totalSize = 0;
+    let totalBytes = 0;
 
-    repos.forEach(repo => {
-      if (repo.language && repo.language !== 'Unknown') {
-        const size = repo.size || 0;
-        languageStats[repo.language] = (languageStats[repo.language] || 0) + size;
-        totalSize += size;
-      }
-    });
+    try {
+      // Fetch detailed language breakdown for each repository
+      const languagePromises = repos.map(repo => 
+        this.getRepositoryLanguages(repo.name).catch(() => ({}))
+      );
+      const languageResults = await Promise.all(languagePromises);
 
-    // Convert to percentages
-    if (totalSize > 0) {
-      Object.keys(languageStats).forEach(lang => {
-        languageStats[lang] = Math.round((languageStats[lang] / totalSize) * 100);
+      // Aggregate language data from all repositories
+      languageResults.forEach((repoLanguages: any) => {
+        Object.entries(repoLanguages).forEach(([language, bytes]) => {
+          const byteCount = bytes as number;
+          languageStats[language] = (languageStats[language] || 0) + byteCount;
+          totalBytes += byteCount;
+        });
       });
+
+      // Convert to percentages
+      if (totalBytes > 0) {
+        Object.keys(languageStats).forEach(lang => {
+          languageStats[lang] = Math.round((languageStats[lang] / totalBytes) * 100);
+        });
+      }
+    } catch (error) {
+      console.warn('Could not fetch detailed language data, falling back to primary languages:', error);
+      
+      // Fallback to primary language method
+      repos.forEach(repo => {
+        if (repo.language && repo.language !== 'Unknown') {
+          const size = repo.size || 0;
+          languageStats[repo.language] = (languageStats[repo.language] || 0) + size;
+          totalBytes += size;
+        }
+      });
+
+      // Convert to percentages
+      if (totalBytes > 0) {
+        Object.keys(languageStats).forEach(lang => {
+          languageStats[lang] = Math.round((languageStats[lang] / totalBytes) * 100);
+        });
+      }
     }
 
     return languageStats;
@@ -174,17 +201,32 @@ class GitHubService {
         this.getUserInfo()
       ]);
 
-      const languages = this.calculateLanguageStats(repos);
+      const languages = await this.calculateLanguageStats(repos);
       const contributions = this.generateContributions();
 
       const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
       const totalForks = repos.reduce((sum, repo) => sum + repo.forks_count, 0);
 
+      // Calculate total commits from recent repositories
+      let totalCommits = 0;
+      try {
+        const recentRepos = repos.slice(0, 5); // Get commits from top 5 repos
+        const commitPromises = recentRepos.map(repo => 
+          this.getRepositoryCommits(repo.name).catch(() => [])
+        );
+        const commitResults = await Promise.all(commitPromises);
+        totalCommits = commitResults.reduce((sum, commits) => sum + commits.length, 0);
+        
+      } catch (error) {
+        console.warn('Could not fetch commit data:', error);
+        totalCommits = 0;
+      }
+
       return {
         totalRepos: repos.length,
         totalStars,
         totalForks,
-        totalCommits: 0, // Would need GraphQL API for this
+        totalCommits,
         languages,
         contributions,
         userInfo: {
@@ -232,6 +274,43 @@ class GitHubService {
       throw error;
     }
   }
+
+  // Get repository activity data (commits, recent activity)
+  async getRepositoryActivity(repoName: string): Promise<{
+    name: string;
+    commits: number;
+    lastCommit: string;
+    recentActivity: number;
+  }> {
+    try {
+      const commits = await this.getRepositoryCommits(repoName);
+      const lastCommit = commits.length > 0 ? commits[0].commit.author.date : '';
+      
+      // Calculate recent activity (commits in last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentActivity = commits.filter((commit: any) => {
+        const commitDate = new Date(commit.commit.author.date);
+        return commitDate > thirtyDaysAgo;
+      }).length;
+
+      return {
+        name: repoName,
+        commits: commits.length,
+        lastCommit,
+        recentActivity
+      };
+    } catch (error) {
+      console.error(`Error fetching activity for ${repoName}:`, error);
+      return {
+        name: repoName,
+        commits: 0,
+        lastCommit: '',
+        recentActivity: 0
+      };
+    }
+  }
 }
 
 // Export singleton instance
@@ -240,11 +319,12 @@ export const githubService = new GitHubService();
 // Helper function to get language colors
 export const getLanguageColor = (language: string): string => {
   const colors: { [key: string]: string } = {
-    'TypeScript': '#3178c6',
-    'JavaScript': '#f7df1e',
-    'Python': '#3776ab',
+    // Popular languages with distinct colors
+    'TypeScript': '#2b7489',
+    'JavaScript': '#f1e05a',
+    'Python': '#3572A5',
     'HTML': '#e34c26',
-    'CSS': '#1572b6',
+    'CSS': '#563d7c',
     'Java': '#b07219',
     'C++': '#f34b7d',
     'C': '#555555',
@@ -254,15 +334,21 @@ export const getLanguageColor = (language: string): string => {
     'PHP': '#4f5d95',
     'Swift': '#ffac45',
     'Kotlin': '#f18e33',
-    'Scala': '#dc322f',
+    'Scala': '#c22d40',
     'R': '#198ce7',
     'MATLAB': '#e16737',
-    'Shell': '#4eaa25',
+    'Shell': '#89e051',
     'PowerShell': '#012456',
+    
+    // Frontend frameworks
     'Vue': '#4fc08d',
     'React': '#61dafb',
     'Angular': '#dd0031',
     'Svelte': '#ff3e00',
+    'Next.js': '#000000',
+    'Nuxt.js': '#00c58e',
+    
+    // Backend and other languages
     'Dart': '#00b4ab',
     'Elixir': '#6e4a7e',
     'Clojure': '#db5855',
@@ -286,7 +372,33 @@ export const getLanguageColor = (language: string): string => {
     'Zig': '#ec915c',
     'V': '#4f87c4',
     'Carbon': '#8f4e8b',
-    'Mojo': '#ff4c1f'
+    'Mojo': '#ff4c1f',
+    
+    // Additional modern languages
+    'Solidity': '#363636',
+    'WebAssembly': '#654ff0',
+    'Julia': '#a270ba',
+    'Ballerina': '#ff5000',
+    'Pony': '#e2c4a9',
+    'Vale': '#de3d83',
+    'Haxe': '#df7900',
+    
+    // Markup and config languages
+    'Markdown': '#083fa1',
+    'YAML': '#cb171e',
+    'JSON': '#000000',
+    'XML': '#f0f0f0',
+    'TOML': '#9c4121',
+    'INI': '#d1dbe0',
+    
+    // Build tools and package managers
+    'Makefile': '#427819',
+    'Dockerfile': '#384d54',
+    'CMake': '#064f8c',
+    'Maven': '#c71a36',
+    'Gradle': '#02303a',
+    'npm': '#cb3837',
+    'yarn': '#2c8ebb'
   };
   
   return colors[language] || '#6b7280';
@@ -307,10 +419,24 @@ export const formatRepositorySize = (size: number): string => {
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
-  const diffTime = Math.abs(now.getTime() - date.getTime());
+  
+  // Handle timezone differences by using UTC
+  const utcDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+  const utcNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+  
+  const diffTime = Math.abs(utcNow.getTime() - utcDate.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
 
-  if (diffDays === 1) {
+  if (diffHours < 24) {
+    if (diffHours < 1) {
+      return 'just now';
+    } else if (diffHours === 1) {
+      return '1 hour ago';
+    } else {
+      return `${diffHours} hours ago`;
+    }
+  } else if (diffDays === 1) {
     return 'yesterday';
   } else if (diffDays < 7) {
     return `${diffDays} days ago`;

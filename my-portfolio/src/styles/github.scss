@@ -139,6 +139,83 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
     padding: 2rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     
+    &.full-width {
+      grid-column: 1 / -1;
+      
+      .chart-wrapper {
+        height: 400px; // Increased height for better visualization
+      }
+      
+      h3 {
+        font-size: 1.5rem; // Slightly larger title for prominence
+        margin-bottom: 2rem;
+      }
+      
+      // Language distribution specific styles
+      .language-distribution-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+        
+        .chart-wrapper {
+          height: 350px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .language-legend {
+          .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            
+            .legend-item {
+              display: flex;
+              align-items: center;
+              gap: 1rem;
+              padding: 0.5rem 0.75rem;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 12px;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              transition: all $transition-speed ease;
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.08);
+                transform: translateX(5px);
+              }
+              
+              .legend-color {
+                width: 16px;
+                height: 16px;
+                border-radius: 4px;
+                flex-shrink: 0;
+              }
+              
+              .legend-label {
+                color: $text-primary;
+                font-weight: 500;
+                flex: 1;
+                font-size: 0.95rem;
+              }
+              
+              .legend-percentage {
+                color: $primary-color;
+                font-weight: 600;
+                font-size: 1rem;
+              }
+            }
+          }
+        }
+      }
+    }
+    
     h3 {
       color: $primary-color;
       font-size: 1.3rem;
@@ -242,6 +319,9 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
     padding: 1.5rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all $transition-speed ease;
+    display: flex;
+    flex-direction: column;
+    height: 280px; // Fixed height for consistency
     
     &:hover {
       transform: translateY(-5px);
@@ -280,6 +360,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
       font-size: 0.9rem;
       line-height: 1.5;
       margin: 0 0 1rem 0;
+      flex: 1; // Take up available space
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3; // Limit to 3 lines
+      -webkit-box-orient: vertical;
     }
     
     .repo-stats {
@@ -327,24 +412,35 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-top: auto; // Push to bottom of card
       
       .repo-updated {
         color: $text-muted;
         font-size: 0.8rem;
       }
       
-      .repo-link {
-        color: $primary-color;
-        text-decoration: none;
+            .repo-link {
+        color: #b0b0b0 !important;
+        text-decoration: none !important;
         font-size: 0.9rem;
         font-weight: 500;
-        transition: color $transition-speed ease;
+        transition: color 0.3s ease;
         
         &:hover {
-          color: $secondary-color;
+          color: #ffffff !important;
         }
       }
     }
+  }
+}
+
+// Override any global link styles for GitHub repo links
+.github-dashboard .repository-card .repo-link {
+  color: #b0b0b0 !important;
+  text-decoration: none !important;
+  
+  &:hover {
+    color: #ffffff !important;
   }
 }
 

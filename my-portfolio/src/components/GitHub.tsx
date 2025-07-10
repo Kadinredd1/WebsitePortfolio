@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import { githubService, getLanguageColor, formatDate } from '../services/githubService';
+import { githubService, getLanguageColor, formatDate, formatRepositorySize } from '../services/githubService';
 import '../styles/github.scss';
 
 // Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-  Filler
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler);
 
 interface Repository {
   id: number;
@@ -50,33 +39,62 @@ interface GitHubStats {
   contributions: ContributionData[];
 }
 
+interface RepositoryActivity {
+  name: string;
+  commits: number;
+  lastCommit: string;
+  recentActivity: number;
+}
+
 const GitHub: React.FC = () => {
-  const [repos, setRepos] = useState<Repository[]>([]);
   const [stats, setStats] = useState<GitHubStats | null>(null);
+  const [repos, setRepos] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [_selectedTimeframe, _setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');
   const [displayedRepos, setDisplayedRepos] = useState<number>(6);
   const [loadingMore, setLoadingMore] = useState(false);
-
-  // Real GitHub data will be fetched from the API
+  const [repositoryActivity, setRepositoryActivity] = useState<RepositoryActivity[]>([]);
+  const [repositoryCommits, setRepositoryCommits] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     const fetchGitHubData = async () => {
       try {
         setLoading(true);
-        
-        // Use GitHub service to fetch real data
         const [reposData, statsData] = await Promise.all([
           githubService.getRepositories(),
           githubService.getGitHubStats()
         ]);
-        
+
         setRepos(reposData);
         setStats(statsData);
-      } catch (error) {
-        console.error('GitHub API error:', error);
-        setError('Failed to load GitHub data. Please check your GitHub username and API token configuration.');
+
+        // Fetch activity data for top repositories only (limit to avoid rate limits)
+        const topRepos = reposData.slice(0, 5);
+        const activityPromises = topRepos.map(repo => 
+          githubService.getRepositoryActivity(repo.name)
+        );
+        const activityData = await Promise.all(activityPromises);
+        setRepositoryActivity(activityData);
+
+        // Fetch commit counts for displayed repositories only (with delay to avoid rate limits)
+        const reposToFetch = reposData.slice(0, 6); // Limit to first 6 repos
+        const commitMap: { [key: string]: number } = {};
+        
+        for (const repo of reposToFetch) {
+          try {
+            const commits = await githubService.getRepositoryCommits(repo.name);
+            commitMap[repo.name] = commits.length;
+            // Add small delay between requests to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch (error) {
+            console.warn(`Could not fetch commits for ${repo.name}:`, error);
+            commitMap[repo.name] = 0;
+          }
+        }
+        setRepositoryCommits(commitMap);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch GitHub data');
       } finally {
         setLoading(false);
       }
@@ -85,67 +103,39 @@ const GitHub: React.FC = () => {
     fetchGitHubData();
   }, []);
 
-  // Contribution graph data
-  const contributionData = stats?.contributions.slice(-30) || [];
-  // const _contributionLabels = contributionData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-  // const _contributionValues = contributionData.map(d => d.count);
+
 
   // Language distribution data
+  const languageLabels = Object.keys(stats?.languages || {});
   const languageData = {
-    labels: Object.keys(stats?.languages || {}),
+    labels: languageLabels,
     datasets: [{
       data: Object.values(stats?.languages || {}),
-      backgroundColor: [
-        '#3178c6', // TypeScript blue
-        '#f7df1e', // JavaScript yellow
-        '#3776ab', // Python blue
-        '#e34c26', // HTML orange
-        '#1572b6', // CSS blue
-        '#7952b3', // Bootstrap purple
-        '#61dafb', // React blue
-        '#000000', // Black
-        '#ff6b6b', // Red
-        '#4ecdc4'  // Teal
-      ],
+      backgroundColor: languageLabels.map(lang => getLanguageColor(lang)),
       borderWidth: 2,
       borderColor: '#ffffff'
     }]
   };
 
-  // Repository activity data
+  // Repository activity data based on commits
   const repoActivityData = {
-    labels: repos.slice(0, 5).map(repo => repo.name),
+    labels: repositoryActivity.slice(0, 5).map(repo => repo.name),
     datasets: [{
-      label: 'Stars',
-      data: repos.slice(0, 5).map(repo => repo.stargazers_count),
-      backgroundColor: 'rgba(255, 193, 7, 0.8)',
-      borderColor: 'rgba(255, 193, 7, 1)',
+      label: 'Total Commits',
+      data: repositoryActivity.slice(0, 5).map(repo => repo.commits),
+      backgroundColor: 'rgba(64, 224, 208, 0.8)',
+      borderColor: 'rgba(64, 224, 208, 1)',
       borderWidth: 1
     }, {
-      label: 'Forks',
-      data: repos.slice(0, 5).map(repo => repo.forks_count),
-      backgroundColor: 'rgba(40, 167, 69, 0.8)',
-      borderColor: 'rgba(40, 167, 69, 1)',
+      label: 'Recent Activity (30 days)',
+      data: repositoryActivity.slice(0, 5).map(repo => repo.recentActivity),
+      backgroundColor: 'rgba(255, 107, 107, 0.8)',
+      borderColor: 'rgba(255, 107, 107, 1)',
       borderWidth: 1
     }]
   };
 
-  // Coding activity over time - consistent data
-  const activityData = {
-    labels: Array.from({ length: 12 }, (_, i) => {
-      const date = new Date();
-      date.setMonth(date.getMonth() - (11 - i));
-      return date.toLocaleDateString('en-US', { month: 'short' });
-    }),
-    datasets: [{
-      label: 'Commits',
-      data: [45, 67, 89, 34, 78, 92, 56, 23, 67, 89, 45, 78], // Consistent data
-      borderColor: 'rgba(64, 224, 208, 1)',
-      backgroundColor: 'rgba(64, 224, 208, 0.1)',
-      fill: true,
-      tension: 0.4
-    }]
-  };
+
 
   const hasMoreRepos = displayedRepos < repos.length;
 
@@ -197,46 +187,9 @@ const GitHub: React.FC = () => {
 
       {/* Charts Grid */}
       <div className="charts-grid">
-        {/* Contribution Graph */}
-        <div className="chart-container">
-          <h3>Recent Activity (Last 30 Days)</h3>
-          <div className="contribution-graph">
-            {contributionData.map((day, _index) => (
-              <div
-                key={day.date}
-                className={`contribution-day level-${Math.min(Math.floor(day.count / 2), 4)}`}
-                title={`${day.date}: ${day.count} contributions`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Language Distribution */}
-        <div className="chart-container">
-          <h3>Language Distribution</h3>
-          <div className="chart-wrapper">
-            <Doughnut
-              data={languageData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: 'bottom',
-                    labels: {
-                      color: '#ffffff',
-                      padding: 20
-                    }
-                  }
-                }
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Repository Activity */}
-        <div className="chart-container">
-          <h3>Top Repositories Activity</h3>
+        {/* Repository Activity - Unified Component (Moved to top) */}
+        <div className="chart-container full-width">
+          <h3>Repository Activity (Based on Commits)</h3>
           <div className="chart-wrapper">
             <Bar
               data={repoActivityData}
@@ -254,7 +207,10 @@ const GitHub: React.FC = () => {
                   y: {
                     beginAtZero: true,
                     ticks: {
-                      color: '#ffffff'
+                      color: '#ffffff',
+                      callback: function(value) {
+                        return value + ' commits';
+                      }
                     },
                     grid: {
                       color: 'rgba(255, 255, 255, 0.1)'
@@ -274,108 +230,83 @@ const GitHub: React.FC = () => {
           </div>
         </div>
 
-        {/* Coding Activity Over Time */}
-        <div className="chart-container">
-          <h3>Coding Activity (Last 12 Months)</h3>
-          <div className="chart-wrapper">
-            <Line
-              data={activityData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    labels: {
-                      color: '#ffffff'
+
+
+        {/* Language Distribution - Full Width */}
+        <div className="chart-container full-width">
+          <h3>Language Distribution</h3>
+          <div className="language-distribution-layout">
+            <div className="chart-wrapper">
+              <Doughnut
+                data={languageData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false // Hide default legend since we'll create custom one
                     }
                   }
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      color: '#ffffff'
-                    },
-                    grid: {
-                      color: 'rgba(255, 255, 255, 0.1)'
-                    }
-                  },
-                  x: {
-                    ticks: {
-                      color: '#ffffff'
-                    },
-                    grid: {
-                      color: 'rgba(255, 255, 255, 0.1)'
-                    }
-                  }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
+            <div className="language-legend">
+              <div className="legend-items">
+                {languageLabels.map((lang, index) => (
+                  <div key={lang} className="legend-item">
+                    <div 
+                      className="legend-color" 
+                      style={{ backgroundColor: getLanguageColor(lang) }}
+                    ></div>
+                    <span className="legend-label">{lang}</span>
+                    <span className="legend-percentage">{stats?.languages[lang]}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
+
+
       </div>
 
-      {/* Repositories Grid */}
+      {/* Recent Repositories */}
       <div className="repositories-section">
-        <div className="repositories-header">
-          <h3>Recent Repositories</h3>
-          <p className="repositories-counter">
-            Showing {Math.min(displayedRepos, repos.length)} of {repos.length} repositories
-          </p>
-        </div>
+        <h3>Recent Repositories</h3>
         <div className="repositories-grid">
           {repos.slice(0, displayedRepos).map((repo) => (
             <div key={repo.id} className="repository-card">
               <div className="repo-header">
                 <h4>{repo.name}</h4>
-                <span className={`repo-visibility ${repo.private ? 'private' : 'public'}`}>
-                  {repo.private ? 'Private' : 'Public'}
+                <span className="repo-language" style={{ color: getLanguageColor(repo.language) }}>
+                  {repo.language}
                 </span>
               </div>
               <p className="repo-description">{repo.description}</p>
               <div className="repo-stats">
-                <span className="repo-language">
-                  <span className="language-dot" style={{ backgroundColor: getLanguageColor(repo.language) }}></span>
-                  {repo.language}
-                </span>
-                <span className="repo-stars">{repo.stargazers_count} stars</span>
-                <span className="repo-forks">{repo.forks_count} forks</span>
+                <span>{repositoryCommits[repo.name] || 0} commits</span>
+                <span>{formatDate(repo.updated_at)}</span>
               </div>
               <div className="repo-topics">
                 {repo.topics.slice(0, 3).map((topic) => (
                   <span key={topic} className="topic-tag">{topic}</span>
                 ))}
               </div>
-              <div className="repo-footer">
-                <span className="repo-updated">
-                  Updated {formatDate(repo.updated_at)}
-                </span>
-                <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="repo-link">
-                  View Repository →
-                </a>
-              </div>
+              <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="repo-link">
+                View Repository
+              </a>
             </div>
           ))}
         </div>
-
-        {/* Load More Button */}
+        
         {hasMoreRepos && (
           <div className="load-more-container">
             <button 
-              className="load-more-btn"
-              onClick={handleLoadMore}
+              onClick={handleLoadMore} 
               disabled={loadingMore}
+              className="load-more-btn"
             >
-              {loadingMore ? (
-                <>
-                  <span className="loading-spinner"></span>
-                  Loading...
-                </>
-              ) : (
-                <>
-                  Load More Repositories ({repos.length - displayedRepos} remaining)
-                </>
-              )}
+              {loadingMore ? 'Loading...' : 'Load More Repositories'}
             </button>
           </div>
         )}
