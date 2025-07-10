@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -25,8 +25,8 @@ vi.mock('../../services/githubService', () => ({
     getGitHubStats: vi.fn() as any
   },
   getLanguageColor: vi.fn(() => '#3178c6'),
-  formatDate: vi.fn((date: string) => '2 days ago'),
-  formatRepositorySize: vi.fn((size: number) => '1.2 MB')
+  formatDate: vi.fn((_date: string) => '2 days ago'),
+  formatRepositorySize: vi.fn((_size: number) => '1.2 MB')
 }));
 
 // Mock SCSS import

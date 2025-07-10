@@ -24,7 +24,7 @@ interface LoginForm {
 
 const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [_admin, setAdmin] = useState<Admin | null>(null);
   const [loginForm, setLoginForm] = useState<LoginForm>({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

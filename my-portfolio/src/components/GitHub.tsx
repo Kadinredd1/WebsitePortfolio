@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import * as d3 from 'd3';
-import { githubService, getLanguageColor, formatDate, formatRepositorySize } from '../services/githubService';
+import { githubService, getLanguageColor, formatDate } from '../services/githubService';
 import '../styles/github.scss';
 
 // Register Chart.js components
@@ -56,7 +55,7 @@ const GitHub: React.FC = () => {
   const [stats, setStats] = useState<GitHubStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');
+  const [_selectedTimeframe, _setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');
   const [displayedRepos, setDisplayedRepos] = useState<number>(6);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -88,8 +87,8 @@ const GitHub: React.FC = () => {
 
   // Contribution graph data
   const contributionData = stats?.contributions.slice(-30) || [];
-  const contributionLabels = contributionData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-  const contributionValues = contributionData.map(d => d.count);
+  // const _contributionLabels = contributionData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+  // const _contributionValues = contributionData.map(d => d.count);
 
   // Language distribution data
   const languageData = {
@@ -202,7 +201,7 @@ const GitHub: React.FC = () => {
         <div className="chart-container">
           <h3>Recent Activity (Last 30 Days)</h3>
           <div className="contribution-graph">
-            {contributionData.map((day, index) => (
+            {contributionData.map((day, _index) => (
               <div
                 key={day.date}
                 className={`contribution-day level-${Math.min(Math.floor(day.count / 2), 4)}`}
