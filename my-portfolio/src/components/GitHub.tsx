@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import * as d3 from 'd3';
-import { githubService, getLanguageColor, formatDate, formatRepositorySize } from '../services/githubService';
+import { githubService, getLanguageColor, formatDate } from '../services/githubService';
 import '../styles/github.scss';
 
 // Register Chart.js components
@@ -56,7 +55,7 @@ const GitHub: React.FC = () => {
   const [stats, setStats] = useState<GitHubStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');
+  const [_selectedTimeframe, _setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');
   const [displayedRepos, setDisplayedRepos] = useState<number>(6);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -88,8 +87,8 @@ const GitHub: React.FC = () => {
 
   // Contribution graph data
   const contributionData = stats?.contributions.slice(-30) || [];
-  const contributionLabels = contributionData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-  const contributionValues = contributionData.map(d => d.count);
+  // const _contributionLabels = contributionData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+  // const _contributionValues = contributionData.map(d => d.count);
 
   // Language distribution data
   const languageData = {
@@ -179,19 +178,19 @@ const GitHub: React.FC = () => {
       {/* Header Stats */}
       <div className="stats-header">
         <div className="stat-card">
-          <h3>📊 Total Repositories</h3>
+          <h3>Total Repositories</h3>
           <span className="stat-number">{stats?.totalRepos}</span>
         </div>
         <div className="stat-card">
-          <h3>⭐ Total Stars</h3>
+          <h3>Total Stars</h3>
           <span className="stat-number">{stats?.totalStars}</span>
         </div>
         <div className="stat-card">
-          <h3>🍴 Total Forks</h3>
+          <h3>Total Forks</h3>
           <span className="stat-number">{stats?.totalForks}</span>
         </div>
         <div className="stat-card">
-          <h3>💻 Total Commits</h3>
+          <h3>Total Commits</h3>
           <span className="stat-number">{stats?.totalCommits}</span>
         </div>
       </div>
@@ -200,9 +199,9 @@ const GitHub: React.FC = () => {
       <div className="charts-grid">
         {/* Contribution Graph */}
         <div className="chart-container">
-          <h3>📈 Recent Activity (Last 30 Days)</h3>
+          <h3>Recent Activity (Last 30 Days)</h3>
           <div className="contribution-graph">
-            {contributionData.map((day, index) => (
+            {contributionData.map((day, _index) => (
               <div
                 key={day.date}
                 className={`contribution-day level-${Math.min(Math.floor(day.count / 2), 4)}`}
@@ -214,7 +213,7 @@ const GitHub: React.FC = () => {
 
         {/* Language Distribution */}
         <div className="chart-container">
-          <h3>🔤 Language Distribution</h3>
+          <h3>Language Distribution</h3>
           <div className="chart-wrapper">
             <Doughnut
               data={languageData}
@@ -237,7 +236,7 @@ const GitHub: React.FC = () => {
 
         {/* Repository Activity */}
         <div className="chart-container">
-          <h3>📊 Top Repositories Activity</h3>
+          <h3>Top Repositories Activity</h3>
           <div className="chart-wrapper">
             <Bar
               data={repoActivityData}
@@ -277,7 +276,7 @@ const GitHub: React.FC = () => {
 
         {/* Coding Activity Over Time */}
         <div className="chart-container">
-          <h3>📅 Coding Activity (Last 12 Months)</h3>
+          <h3>Coding Activity (Last 12 Months)</h3>
           <div className="chart-wrapper">
             <Line
               data={activityData}
@@ -319,7 +318,7 @@ const GitHub: React.FC = () => {
       {/* Repositories Grid */}
       <div className="repositories-section">
         <div className="repositories-header">
-          <h3>📁 Recent Repositories</h3>
+          <h3>Recent Repositories</h3>
           <p className="repositories-counter">
             Showing {Math.min(displayedRepos, repos.length)} of {repos.length} repositories
           </p>
@@ -330,7 +329,7 @@ const GitHub: React.FC = () => {
               <div className="repo-header">
                 <h4>{repo.name}</h4>
                 <span className={`repo-visibility ${repo.private ? 'private' : 'public'}`}>
-                  {repo.private ? '🔒' : '🌐'}
+                  {repo.private ? 'Private' : 'Public'}
                 </span>
               </div>
               <p className="repo-description">{repo.description}</p>
@@ -339,8 +338,8 @@ const GitHub: React.FC = () => {
                   <span className="language-dot" style={{ backgroundColor: getLanguageColor(repo.language) }}></span>
                   {repo.language}
                 </span>
-                <span className="repo-stars">⭐ {repo.stargazers_count}</span>
-                <span className="repo-forks">🍴 {repo.forks_count}</span>
+                <span className="repo-stars">{repo.stargazers_count} stars</span>
+                <span className="repo-forks">{repo.forks_count} forks</span>
               </div>
               <div className="repo-topics">
                 {repo.topics.slice(0, 3).map((topic) => (
@@ -374,7 +373,7 @@ const GitHub: React.FC = () => {
                 </>
               ) : (
                 <>
-                  📂 Load More Repositories ({repos.length - displayedRepos} remaining)
+                  Load More Repositories ({repos.length - displayedRepos} remaining)
                 </>
               )}
             </button>
@@ -384,7 +383,5 @@ const GitHub: React.FC = () => {
     </div>
   );
 };
-
-
 
 export default GitHub;
