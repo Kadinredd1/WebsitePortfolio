@@ -407,7 +407,7 @@ const AddProject: React.FC = () => {
             {isSubmitting ? 'Adding Project...' : 'Add Project'}
           </button>
         </div>
-      </form>
+    </form>
     </div>
   );
 };
