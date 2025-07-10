@@ -1,0 +1,526 @@
+@import 'variables';
+
+// Variables
+$primary-color: #40e0d0;
+$secondary-color: #8a2be2;
+$accent-color: #ff6b6b;
+$text-primary: #ffffff;
+$text-secondary: #b0b0b0;
+$text-muted: #6b7280;
+$bg-dark: #0a0a0a;
+$bg-card: rgba(255, 255, 255, 0.05);
+$transition-speed: 0.3s;
+$shadow-light: 0 10px 30px rgba(64, 224, 208, 0.15);
+$shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
+
+// Mixins
+@mixin glassmorphism($opacity: 0.05) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@mixin gradient-text($colors...) {
+  background: linear-gradient(135deg, $colors);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+// GitHub Dashboard Container
+.github-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+// Loading and Error States
+.github-loading,
+.github-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  
+  .loading-spinner,
+  .error-message {
+    @include glassmorphism(0.08);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .loading-spinner {
+    color: $primary-color;
+    font-size: 1.2rem;
+    font-weight: 500;
+    
+    &::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba($primary-color, 0.3);
+      border-radius: 50%;
+      border-top-color: $primary-color;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+    }
+  }
+  
+  .error-message {
+    color: $accent-color;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Header Stats
+.stats-header {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  
+  .stat-card {
+    @include glassmorphism(0.08);
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all $transition-speed ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: $shadow-light;
+      border-color: rgba($primary-color, 0.3);
+    }
+    
+    h3 {
+      color: $text-secondary;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-number {
+      @include gradient-text($primary-color, $secondary-color);
+      font-size: 2.5rem;
+      font-weight: 700;
+      display: block;
+    }
+  }
+}
+
+// Charts Grid
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .chart-container {
+    @include glassmorphism(0.08);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    h3 {
+      color: $primary-color;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 1.5rem 0;
+      text-align: center;
+    }
+    
+    .chart-wrapper {
+      height: 300px;
+      position: relative;
+    }
+  }
+}
+
+// Contribution Graph (GitHub-style)
+.contribution-graph {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  gap: 2px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  
+  .contribution-day {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    transition: all $transition-speed ease;
+    cursor: pointer;
+    
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba($primary-color, 0.5);
+    }
+    
+    &.level-0 {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    &.level-1 {
+      background: rgba($primary-color, 0.2);
+    }
+    
+    &.level-2 {
+      background: rgba($primary-color, 0.4);
+    }
+    
+    &.level-3 {
+      background: rgba($primary-color, 0.6);
+    }
+    
+    &.level-4 {
+      background: rgba($primary-color, 0.8);
+    }
+  }
+}
+
+// Repositories Section
+.repositories-section {
+  .repositories-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    h3 {
+      @include gradient-text($primary-color, $secondary-color);
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .repositories-counter {
+      color: $text-secondary;
+      font-size: 1rem;
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+}
+.repositories-section {
+  h3 {
+    color: $primary-color;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+  }
+}
+
+.repositories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+  
+  .repository-card {
+    @include glassmorphism(0.08);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all $transition-speed ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: $shadow-light;
+      border-color: rgba($primary-color, 0.3);
+    }
+    
+    .repo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      
+      h4 {
+        color: $text-primary;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      
+      .repo-visibility {
+        font-size: 1.2rem;
+        
+        &.private {
+          color: $accent-color;
+        }
+        
+        &.public {
+          color: $primary-color;
+        }
+      }
+    }
+    
+    .repo-description {
+      color: $text-secondary;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0 0 1rem 0;
+    }
+    
+    .repo-stats {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      
+      .repo-language,
+      .repo-stars,
+      .repo-forks {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: $text-secondary;
+        font-size: 0.85rem;
+        font-weight: 500;
+        
+        .language-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+        }
+      }
+    }
+    
+    .repo-topics {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      
+      .topic-tag {
+        background: rgba($primary-color, 0.2);
+        color: $primary-color;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid rgba($primary-color, 0.3);
+      }
+    }
+    
+    .repo-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      .repo-updated {
+        color: $text-muted;
+        font-size: 0.8rem;
+      }
+      
+      .repo-link {
+        color: $primary-color;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color $transition-speed ease;
+        
+        &:hover {
+          color: $secondary-color;
+        }
+      }
+    }
+  }
+}
+
+// Chart Customization
+.chart-container {
+  .chart-wrapper {
+    canvas {
+      border-radius: 12px;
+    }
+  }
+}
+
+// Load More Button
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+  padding: 0 1rem;
+}
+
+.load-more-btn {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  color: #000;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-speed ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: $shadow-light;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: $shadow-heavy;
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    border-top-color: #000;
+    animation: spin 1s ease-in-out infinite;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contribution-graph {
+    grid-template-columns: repeat(15, 1fr);
+    
+    .contribution-day {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .github-dashboard {
+    padding: 0 0.5rem;
+  }
+  
+  .stats-header {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    
+    .stat-card {
+      padding: 1rem;
+      
+      .stat-number {
+        font-size: 2rem;
+      }
+    }
+  }
+  
+  .chart-container {
+    padding: 1.5rem;
+    
+    .chart-wrapper {
+      height: 250px;
+    }
+  }
+  
+  .repositories-grid {
+    grid-template-columns: 1fr;
+    
+    .repository-card {
+      padding: 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-header {
+    grid-template-columns: 1fr;
+  }
+  
+  .contribution-graph {
+    grid-template-columns: repeat(10, 1fr);
+    
+    .contribution-day {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.github-dashboard {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.stats-header .stat-card,
+.chart-container,
+.repository-card {
+  animation: fadeInUp 0.6s ease-out;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+}
+
+// Dark theme enhancements
+@media (prefers-color-scheme: dark) {
+  .chart-container {
+    .chart-wrapper {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .github-dashboard {
+    .stats-header,
+    .charts-grid,
+    .repositories-grid {
+      break-inside: avoid;
+    }
+    
+    .repository-card {
+      border: 2px solid #333;
+      
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+} 

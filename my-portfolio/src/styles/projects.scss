@@ -1,0 +1,891 @@
+
+
+$primary-color: #40e0d0;
+$secondary-color: #8a2be2;
+$accent-color: #ff6b6b;
+$text-primary: #ffffff;
+$text-secondary: #b0b0b0;
+$text-muted: #6b7280;
+$card-bg: rgba(255, 255, 255, 0.05);
+$card-bg-hover: rgba(255, 255, 255, 0.08);
+$card-radius: 20px;
+$transition-speed: 0.3s;
+$shadow-light: 0 10px 30px rgba(64, 224, 208, 0.15);
+$shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
+
+// Mixins for reusability
+@mixin glassmorphism($opacity: 0.05) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@mixin hover-lift($distance: -10px) {
+  transform: translateY($distance);
+  box-shadow: $shadow-heavy;
+}
+
+@mixin gradient-text($colors...) {
+  background: linear-gradient(135deg, $colors);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@mixin tech-tag-variant($bg-color, $text-color, $border-color) {
+  background: $bg-color;
+  color: $text-color;
+  border: 1px solid $border-color;
+  
+  &:hover {
+    background: lighten($bg-color, 5%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba($text-color, 0.3);
+  }
+}
+
+// Projects Header
+.projects-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  h2 {
+    @include gradient-text($primary-color, $secondary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .projects-counter {
+    color: $text-secondary;
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// Enhanced Grid with Better Responsiveness
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 0 1.5rem;
+  
+  // Enhanced responsive breakpoints
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 0 2rem;
+  }
+
+  .project-card {
+    @include glassmorphism();
+    border-radius: $card-radius;
+    overflow: hidden;
+    transition: all $transition-speed cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    cursor: pointer;
+    
+    // Enhanced hover effects
+    &:hover {
+      @include hover-lift();
+      border-color: rgba($primary-color, 0.6);
+      background: $card-bg-hover;
+      
+      .project-image {
+        &::after {
+          opacity: 1;
+        }
+        
+        &::before {
+          transform: scale(1.1);
+        }
+      }
+      
+      .project-title {
+        @include gradient-text($primary-color, $secondary-color);
+      }
+      
+      .tech-tag {
+        transform: translateY(-2px);
+      }
+    }
+    
+    // Loading state animation
+    &.loading {
+      opacity: 0.7;
+      pointer-events: none;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba($primary-color, 0.1),
+          transparent
+        );
+        animation: shimmer 1.5s infinite;
+      }
+    }
+
+    .project-image {
+      width: 100%;
+      height: 180px; // Smaller height for more compact cards
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      position: relative;
+      overflow: hidden;
+      
+      // Enhanced pattern overlay
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%), 
+          linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%), 
+          linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%), 
+          linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
+        background-size: 20px 20px;
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        transition: transform $transition-speed ease;
+      }
+      
+      // Enhanced hover overlay
+      &::after {
+        content: '🔍 Click to explore';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: $primary-color;
+        opacity: 0;
+        transition: opacity $transition-speed ease;
+        backdrop-filter: blur(4px);
+      }
+      
+      // Project status badge
+      .project-status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        
+        &.live {
+          background: rgba(34, 197, 94, 0.2);
+          color: #22c55e;
+          border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        &.development {
+          background: rgba(251, 191, 36, 0.2);
+          color: #fbbf24;
+          border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        
+        &.completed {
+          background: rgba(59, 130, 246, 0.2);
+          color: #3b82f6;
+          border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+      }
+    }
+
+    .project-content {
+      padding: 1.5rem 1.25rem; // Reduced padding for more compact cards
+      
+      .project-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: $primary-color;
+        transition: all $transition-speed ease;
+        line-height: 1.3;
+        
+        // Truncate long titles
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      .project-description {
+        color: $text-secondary;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        
+        // Better text handling
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      
+      // Project metadata
+      .project-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        font-size: 0.8rem;
+        color: $text-muted;
+        
+        .project-date {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          
+          &::before {
+            content: '📅';
+            font-size: 0.8rem;
+          }
+        }
+        
+        .project-links {
+          display: flex;
+          gap: 0.75rem;
+          
+          a {
+            color: $primary-color;
+            text-decoration: none;
+            transition: color $transition-speed ease;
+            
+            &:hover {
+              color: $secondary-color;
+            }
+            
+            &.github::before {
+              content: '🔗 ';
+            }
+            
+            &.demo::before {
+              content: '🚀 ';
+            }
+          }
+        }
+      }
+      
+      .project-tech {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        
+        .tech-tag {
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: 500;
+          transition: all $transition-speed cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: pointer;
+          
+          // Default tech tag
+          @include tech-tag-variant(
+            rgba($primary-color, 0.2),
+            $primary-color,
+            rgba($primary-color, 0.3)
+          );
+          
+          // Specialized tech tag colors
+          &.frontend {
+            @include tech-tag-variant(
+              rgba(#3b82f6, 0.2),
+              #3b82f6,
+              rgba(#3b82f6, 0.3)
+            );
+          }
+          
+          &.backend {
+            @include tech-tag-variant(
+              rgba(#10b981, 0.2),
+              #10b981,
+              rgba(#10b981, 0.3)
+            );
+          }
+          
+          &.database {
+            @include tech-tag-variant(
+              rgba(#f59e0b, 0.2),
+              #f59e0b,
+              rgba(#f59e0b, 0.3)
+            );
+          }
+          
+          &.tool {
+            @include tech-tag-variant(
+              rgba(#8b5cf6, 0.2),
+              #8b5cf6,
+              rgba(#8b5cf6, 0.3)
+            );
+          }
+        }
+      }
+    }
+    
+    // Project completion indicator
+    .completion-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      transition: width 1s ease;
+      
+      &[data-completion="100"] {
+        width: 100%;
+      }
+      
+      &[data-completion="75"] {
+        width: 75%;
+      }
+      
+      &[data-completion="50"] {
+        width: 50%;
+      }
+      
+      &[data-completion="25"] {
+        width: 25%;
+      }
+    }
+  }
+}
+
+// Grid layout variations
+.projects-grid {
+  &.masonry {
+    columns: 3;
+    column-gap: 2rem;
+    
+    @media (max-width: 1024px) {
+      columns: 2;
+    }
+    
+    @media (max-width: 768px) {
+      columns: 1;
+    }
+    
+    .project-card {
+      break-inside: avoid;
+      margin-bottom: 2rem;
+    }
+  }
+  
+  &.list-view {
+    grid-template-columns: 1fr;
+    
+    .project-card {
+      display: flex;
+      max-height: 200px;
+      
+      .project-image {
+        width: 300px;
+        flex-shrink: 0;
+      }
+      
+      .project-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Intersection Observer animation classes
+.project-card {
+  &.animate-in {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  &.animate-in-delay-1 {
+    animation: fadeInUp 0.6s ease-out 0.1s forwards;
+    opacity: 0;
+  }
+  
+  &.animate-in-delay-2 {
+    animation: fadeInUp 0.6s ease-out 0.2s forwards;
+    opacity: 0;
+  }
+  
+  &.animate-in-delay-3 {
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+}
+
+// Search and filter enhancements
+.projects-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  
+  .filter-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: all $transition-speed ease;
+    
+    &:hover,
+    &.active {
+      background: rgba($primary-color, 0.2);
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+  
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    color: white;
+    
+    &::placeholder {
+      color: $text-muted;
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+// Interactive elements
+.project-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.expand-btn {
+  background: rgba($primary-color, 0.1);
+  border: 1px solid rgba($primary-color, 0.3);
+  color: $primary-color;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all $transition-speed ease;
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  &:hover {
+    background: rgba($primary-color, 0.2);
+    border-color: $primary-color;
+    transform: translateY(-2px);
+  }
+}
+
+.delete-btn {
+  background: rgba($accent-color, 0.1);
+  border: 1px solid rgba($accent-color, 0.3);
+  color: $accent-color;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all $transition-speed ease;
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  &:hover:not(:disabled) {
+    background: rgba($accent-color, 0.2);
+    border-color: $accent-color;
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.project-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: $text-secondary;
+  
+  span {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+// Modal styles
+.project-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.project-modal {
+  @include glassmorphism(0.1);
+  border-radius: $card-radius;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+  
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: $text-secondary;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all $transition-speed ease;
+    z-index: 10;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: $text-primary;
+    }
+  }
+  
+  .modal-header {
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    h2 {
+      margin: 0 0 1rem 0;
+      color: $primary-color;
+      font-size: 1.8rem;
+    }
+    
+    .modal-meta {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+  }
+  
+  .modal-content {
+    padding: 2rem;
+    
+    .modal-section {
+      margin-bottom: 2rem;
+      
+      h3 {
+        color: $primary-color;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        border-bottom: 1px solid rgba($primary-color, 0.3);
+        padding-bottom: 0.5rem;
+      }
+      
+      p {
+        color: $text-secondary;
+        line-height: 1.7;
+        margin: 0;
+      }
+      
+      ul {
+        color: $text-secondary;
+        padding-left: 1.5rem;
+        
+        li {
+          margin-bottom: 0.5rem;
+          line-height: 1.6;
+        }
+      }
+      
+      .tech-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+    }
+  }
+  
+  .modal-footer {
+    padding: 1rem 2rem 2rem;
+    
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all $transition-speed ease;
+      border: none;
+      cursor: pointer;
+      
+      &.btn-primary {
+        background: $primary-color;
+        color: #000;
+        
+        &:hover {
+          background: lighten($primary-color, 10%);
+          transform: translateY(-2px);
+        }
+      }
+      
+      &.btn-secondary {
+        background: rgba($secondary-color, 0.2);
+        color: $secondary-color;
+        border: 1px solid rgba($secondary-color, 0.3);
+        
+        &:hover {
+          background: rgba($secondary-color, 0.3);
+          transform: translateY(-2px);
+        }
+      }
+      
+      &.btn-danger {
+        background: rgba($accent-color, 0.2);
+        color: $accent-color;
+        border: 1px solid rgba($accent-color, 0.3);
+        
+        &:hover:not(:disabled) {
+          background: rgba($accent-color, 0.3);
+          transform: translateY(-2px);
+        }
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+      }
+    }
+  }
+}
+
+// Modal animations
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Expanded card styles
+.project-card.expanded {
+  .project-description {
+    -webkit-line-clamp: unset;
+    max-height: none;
+  }
+}
+
+// Loading and Error States
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  
+  .loading-spinner {
+    color: $primary-color;
+    font-size: 1.2rem;
+    font-weight: 500;
+    
+    &::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba($primary-color, 0.3);
+      border-radius: 50%;
+      border-top-color: $primary-color;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+    }
+  }
+}
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  
+  .error-message {
+    color: $accent-color;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 2rem;
+    background: rgba($accent-color, 0.1);
+    border: 1px solid rgba($accent-color, 0.3);
+    border-radius: 12px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Load More Button
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+  padding: 0 1rem;
+}
+
+.load-more-btn {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  color: #000;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-speed ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: $shadow-light;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: $shadow-heavy;
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    border-top-color: #000;
+    animation: spin 1s ease-in-out infinite;
+  }
+}
+
+// Print styles
+@media print {
+  .projects-grid {
+    display: block;
+    
+    .project-card {
+      break-inside: avoid;
+      margin-bottom: 2rem;
+      border: 2px solid #333;
+      
+      .project-image::after {
+        display: none;
+      }
+      
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+  
+  .project-modal-overlay {
+    display: none;
+  }
+  
+  .load-more-container {
+    display: none;
+  }
+}
