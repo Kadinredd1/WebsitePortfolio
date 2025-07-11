@@ -2,15 +2,45 @@ import React, { useState } from 'react';
 import '../styles/addProject.scss';
 import { API_ENDPOINTS } from '../config/api';
 
+// Predefined list of technologies
+const TECHNOLOGIES = [
+  // Frontend
+  'React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby',
+  'TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Sass', 'Less', 'Tailwind CSS',
+  'Bootstrap', 'Material-UI', 'Ant Design', 'Chakra UI', 'Styled Components',
+  
+  // Backend
+  'Node.js', 'Express.js', 'NestJS', 'Fastify', 'Koa', 'Python', 'Django',
+  'Flask', 'FastAPI', 'Java', 'Spring Boot', 'C#', '.NET', 'ASP.NET Core',
+  'PHP', 'Laravel', 'Symfony', 'Ruby', 'Ruby on Rails', 'Go', 'Gin',
+  
+  // Databases
+  'MongoDB', 'PostgreSQL', 'MySQL', 'SQLite', 'Redis', 'Firebase',
+  'Supabase', 'DynamoDB', 'Elasticsearch',
+  
+  // Cloud & DevOps
+  'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Vercel',
+  'Netlify', 'Heroku', 'DigitalOcean', 'GitHub Actions', 'CI/CD',
+  
+  // Tools & Libraries
+  'Git', 'Webpack', 'Vite', 'Babel', 'ESLint', 'Prettier', 'Jest',
+  'Cypress', 'Storybook', 'GraphQL', 'REST API', 'WebSocket',
+  'Socket.io', 'Prisma', 'Sequelize', 'Mongoose', 'JWT', 'OAuth',
+  
+  // Mobile & Desktop
+  'React Native', 'Flutter', 'Electron', 'Ionic', 'Cordova',
+  
+  // AI & ML
+  'TensorFlow', 'PyTorch', 'OpenAI API', 'Machine Learning', 'Data Science'
+];
+
 interface ProjectFormData {
   title: string;
   description: string;
-  longDescription: string;
   technologies: string[];
   projectURL: string;
   demoURL: string;
   status: 'live' | 'development' | 'completed';
-  completion: number;
   features: string[];
   challenges: string[];
   lessons: string[];
@@ -21,12 +51,10 @@ const AddProject: React.FC = () => {
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
-    longDescription: '',
     technologies: [],
     projectURL: '',
     demoURL: '',
     status: 'development',
-    completion: 0,
     features: [''],
     challenges: [''],
     lessons: [''],
@@ -35,7 +63,7 @@ const AddProject: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [newTech, setNewTech] = useState('');
+  const [selectedTech, setSelectedTech] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -75,12 +103,12 @@ const AddProject: React.FC = () => {
   };
 
   const addTechnology = () => {
-    if (newTech.trim() && !formData.technologies.includes(newTech.trim())) {
+    if (selectedTech && !formData.technologies.includes(selectedTech)) {
       setFormData(prev => ({
         ...prev,
-        technologies: [...prev.technologies, newTech.trim()]
+        technologies: [...prev.technologies, selectedTech]
       }));
-      setNewTech('');
+      setSelectedTech('');
     }
   };
 
@@ -121,12 +149,10 @@ const AddProject: React.FC = () => {
         setFormData({
           title: '',
           description: '',
-          longDescription: '',
           technologies: [],
           projectURL: '',
           demoURL: '',
           status: 'development',
-          completion: 0,
           features: [''],
           challenges: [''],
           lessons: [''],
@@ -174,27 +200,14 @@ const AddProject: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="description">Short Description *</label>
+            <label htmlFor="description">Project Description *</label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               required
-              placeholder="Brief description of your project"
-              rows={3}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="longDescription">Detailed Description *</label>
-            <textarea
-              id="longDescription"
-              name="longDescription"
-              value={formData.longDescription}
-              onChange={handleInputChange}
-              required
-              placeholder="Comprehensive description of your project"
+              placeholder="Describe your project, its features, and what you learned"
               rows={5}
             />
           </div>
@@ -203,61 +216,43 @@ const AddProject: React.FC = () => {
         <div className="form-section">
           <h3>Project Details</h3>
           
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="status">Project Status *</label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="development">In Development</option>
-                <option value="completed">Completed</option>
-                <option value="live">Live</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="completion">Completion Percentage</label>
-              <input
-                type="range"
-                id="completion"
-                name="completion"
-                min="0"
-                max="100"
-                value={formData.completion}
-                onChange={handleInputChange}
-              />
-              <span className="completion-value">{formData.completion}%</span>
-            </div>
+          <div className="form-group">
+            <label htmlFor="status">Project Status *</label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="development">In Development</option>
+              <option value="completed">Completed</option>
+              <option value="live">Live</option>
+            </select>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="projectURL">GitHub URL</label>
-              <input
-                type="url"
-                id="projectURL"
-                name="projectURL"
-                value={formData.projectURL}
-                onChange={handleInputChange}
-                placeholder="https://github.com/username/project"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="projectURL">GitHub URL (Optional)</label>
+            <input
+              type="url"
+              id="projectURL"
+              name="projectURL"
+              value={formData.projectURL}
+              onChange={handleInputChange}
+              placeholder="https://github.com/username/project"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="demoURL">Live Demo URL</label>
-              <input
-                type="url"
-                id="demoURL"
-                name="demoURL"
-                value={formData.demoURL}
-                onChange={handleInputChange}
-                placeholder="https://your-demo-site.com"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="demoURL">Live Demo URL (Optional)</label>
+            <input
+              type="url"
+              id="demoURL"
+              name="demoURL"
+              value={formData.demoURL}
+              onChange={handleInputChange}
+              placeholder="https://your-demo-site.com"
+            />
           </div>
         </div>
 
@@ -265,13 +260,18 @@ const AddProject: React.FC = () => {
           <h3>Technologies Used</h3>
           
           <div className="tech-input-group">
-            <input
-              type="text"
-              value={newTech}
-              onChange={(e) => setNewTech(e.target.value)}
-              placeholder="Add a technology (e.g., React, Node.js)"
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
-            />
+            <select
+              value={selectedTech}
+              onChange={(e) => setSelectedTech(e.target.value)}
+              className="tech-select"
+            >
+              <option value="">Select a technology...</option>
+              {TECHNOLOGIES.map((tech) => (
+                <option key={tech} value={tech}>
+                  {tech}
+                </option>
+              ))}
+            </select>
             <button type="button" onClick={addTechnology} className="add-tech-btn">
               Add
             </button>
