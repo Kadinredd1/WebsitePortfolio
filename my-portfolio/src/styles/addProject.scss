@@ -1,5 +1,5 @@
 // Variables
-$primary-color: #40e0d0;
+$primary-color: #f2f6f6;
 $secondary-color: #8a2be2;
 $accent-color: #ff6b6b;
 $text-primary: #ffffff;
@@ -397,4 +397,98 @@ input[type="file"] {
 
 .add-project-container {
   animation: fadeInUp 0.5s ease-out;
+} 
+
+// React Select Custom Styles
+.react-select__control {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px;
+  color: $text-primary;
+  min-height: 48px;
+  box-shadow: none;
+  width: 100%;
+  font-size: 0.95rem;
+  transition: all $transition-speed ease;
+
+  &:hover, &--is-focused {
+    border-color: $primary-color;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+}
+
+.react-select__value-container {
+  color: $text-primary;
+  background: transparent;
+}
+
+.react-select__input-container {
+  color: $text-primary !important;
+  min-width: 100%;
+  width: 100%;
+}
+
+.react-select__input input {
+  color: #fff;
+  min-width: 100px;
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 0%;
+}
+
+.react-select__multi-value {
+  background: $primary-color;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.react-select__multi-value__label {
+  color: #fff;
+}
+
+.react-select__multi-value__remove {
+  color: #fff;
+  background: transparent;
+  &:hover {
+    background: $accent-color;
+    color: #fff;
+  }
+}
+
+.react-select__menu {
+  background: $bg-dark !important; // solid grey, not transparent or black
+  color: $text-primary;
+  border-radius: 12px;
+  box-shadow: $shadow-heavy;
+  z-index: 10;
+}
+
+.react-select__option {
+  background: $bg-card !important; // solid grey for all options
+  color: $text-primary !important;
+  cursor: pointer;
+  transition: background $transition-speed;
+
+  &--is-focused {
+    background: rgba(255, 255, 255, 0.08) !important; // a medium grey for hover/focus
+    color: $primary-color;
+  }
+  &--is-selected {
+    background: $primary-color !important;
+    color: #fff;
+  }
+}
+
+.react-select__placeholder {
+  color: $text-muted;
+}
+
+.react-select__indicator-separator {
+  display: none;
+}
+
+// Make sure the select spans the modal width
+.tech-input-group .react-select__control {
+  width: 100%;
 } 
