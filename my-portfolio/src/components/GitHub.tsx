@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler } from 'chart.js';
-import { Bar, Doughnut } from 'react-chartjs-2';
+import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { githubService, getLanguageColor, formatDate } from '../services/githubService';
 import '../styles/github.scss';
 
@@ -252,7 +252,7 @@ const GitHub: React.FC = () => {
             </div>
             <div className="language-legend">
               <div className="legend-items">
-                {languageLabels.map((lang) => (
+                {languageLabels.map((lang, index) => (
                   <div key={lang} className="legend-item">
                     <div 
                       className="legend-color" 
