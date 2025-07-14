@@ -101,17 +101,6 @@ const AddProject: React.FC<AddProjectProps> = ({ onProjectAdded }) => {
     }));
   };
 
-  const handleTechChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = e.target.value;
-    if (selectedValue && !formData.technologies.includes(selectedValue)) {
-      setFormData(prev => ({
-        ...prev,
-        technologies: [...prev.technologies, selectedValue]
-      }));
-    }
-    // setSelectedTech(''); // Reset the select to empty
-  };
-
   const removeTechnology = (tech: string) => {
     setFormData(prev => ({
       ...prev,

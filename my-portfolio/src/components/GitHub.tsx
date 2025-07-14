@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import { githubService, getLanguageColor, formatDate, formatRepositorySize } from '../services/githubService';
+import { githubService, getLanguageColor, formatDate } from '../services/githubService';
 import '../styles/github.scss';
 
 // Register Chart.js components
