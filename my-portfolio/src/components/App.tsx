@@ -3,6 +3,7 @@ import Projects from './Projects';
 import GitHub from './GitHub';
 import AddProject from './AddProject';
 import Admin from './Admin';
+import LandingPage from './LandingPage';
 import '../styles/navigation.scss';
 
 const App: React.FC = () => {
@@ -12,9 +13,9 @@ const App: React.FC = () => {
   // Get initial section from URL hash or default to 'projects'
   const getInitialSection = (): string => {
     const hash = window.location.hash.replace('#', '');
-    const validSections = ['projects', 'github', 'admin'];
+    const validSections = ['landing', 'projects', 'github', 'admin'];
     if (isAdmin) validSections.push('add');
-    return validSections.includes(hash) ? hash : 'projects';
+    return validSections.includes(hash) ? hash : 'landing';
   };
 
   const [section, setSection] = React.useState(getInitialSection);
@@ -36,7 +37,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      const validSections = ['projects', 'github', 'admin'];
+      const validSections = ['landing', 'projects', 'github', 'admin'];
       if (isAdmin) validSections.push('add');
       if (validSections.includes(hash)) {
         setSection(hash);
@@ -67,70 +68,69 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
-      {/* Header with Title and Description */}
-      <header className="app-header">
-        <div className="header-content">
-          <h1 className="main-title">Tech Portfolio</h1>
-          <p className="main-subtitle">Showcasing innovative projects and technical expertise</p>
-        </div>
-        <div className="header-admin-btn">
-          <button className="admin-login-btn" onClick={handleAdminClick}>
-            {isAdmin ? 'Admin' : 'Login'}
-          </button>
-        </div>
-      </header>
-
-      {/* Navigation Bar */}
-      <nav className="main-nav">
-        <div className="nav-container">
-          <button 
-            className={`nav-btn ${section === 'projects' ? 'active' : ''}`} 
-            onClick={() => handleSectionChange('projects')}
-          >
-            Projects
-          </button>
-          <button 
-            className={`nav-btn ${section === 'github' ? 'active' : ''}`} 
-            onClick={() => handleSectionChange('github')}
-          >
-            GitHub
-          </button>
-          {isAdmin && (
-            <button 
-              className={`nav-btn ${section === 'add' ? 'active' : ''}`} 
-              onClick={() => handleSectionChange('add')}
+    <div className="app-bg">
+      {/* Single-line Navbar */}
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <button className="nav-name" onClick={() => handleSectionChange('landing')}>Kadin.me</button>
+          <div className="nav-buttons">
+            <button
+              className={`nav-btn${section === 'projects' ? ' active' : ''}`}
+              onClick={() => handleSectionChange('projects')}
             >
-              Add Project
+              Projects
             </button>
-          )}
+            <button
+              className={`nav-btn${section === 'github' ? ' active' : ''}`}
+              onClick={() => handleSectionChange('github')}
+            >
+              GitHub
+            </button>
+            {isAdmin && (
+              <button
+                className={`nav-btn${section === 'add' ? ' active' : ''}`}
+                onClick={() => handleSectionChange('add')}
+              >
+                Add Project
+              </button>
+            )}
+            <button
+              className={`nav-btn${section === 'admin' ? ' active' : ''}`}
+              onClick={handleAdminClick}
+            >
+              {isAdmin ? 'Admin' : 'Login'}
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* Main Content Area */}
       <main className="main-content">
-        <section className={`content-section ${section === 'projects' ? 'active' : ''}`}>
-        <Projects />
-      </section>
-        <section className={`content-section ${section === 'github' ? 'active' : ''}`}>
-        <GitHub />
-      </section>
-        {isAdmin && (
-          <section className={`content-section ${section === 'add' ? 'active' : ''}`}>
-        <AddProject />
-      </section>
+        {section === 'landing' && (
+          <section className="content-section active">
+            <LandingPage />
+          </section>
         )}
-        {/* Admin page as a full page, not modal */}
+        <section className={`content-section${section === 'projects' ? ' active' : ''}`}>
+          <Projects />
+        </section>
+        <section className={`content-section${section === 'github' ? ' active' : ''}`}>
+          <GitHub />
+        </section>
+        {isAdmin && (
+          <section className={`content-section${section === 'add' ? ' active' : ''}`}>
+            <AddProject />
+          </section>
+        )}
         {section === 'admin' && (
           <section className="content-section active">
-            <Admin 
+            <Admin
               onLogin={handleAdminLogin}
-              onLogout={handleAdminLogout} 
+              onLogout={handleAdminLogout}
               isAdmin={isAdmin}
             />
           </section>
         )}
-        {/* If not admin and tries to access add, show message */}
         {!isAdmin && section === 'add' && (
           <section className="content-section active">
             <div className="not-authorized">
