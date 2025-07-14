@@ -9,6 +9,7 @@ import '../styles/navigation.scss';
 const App: React.FC = () => {
   // Admin authentication state
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const [projectsRefreshKey, setProjectsRefreshKey] = React.useState(0);
 
   // Get initial section from URL hash or default to 'projects'
   const getInitialSection = (): string => {
@@ -67,6 +68,11 @@ const App: React.FC = () => {
     window.location.hash = 'projects';
   };
 
+  const handleProjectAdded = () => {
+    // Force refresh of projects list
+    setProjectsRefreshKey(prev => prev + 1);
+  };
+
   return (
     <div className="app-bg">
       {/* Single-line Navbar */}
@@ -112,14 +118,14 @@ const App: React.FC = () => {
           </section>
         )}
         <section className={`content-section${section === 'projects' ? ' active' : ''}`}>
-          <Projects />
+          <Projects refreshKey={projectsRefreshKey} />
         </section>
         <section className={`content-section${section === 'github' ? ' active' : ''}`}>
           <GitHub />
         </section>
         {isAdmin && (
           <section className={`content-section${section === 'add' ? ' active' : ''}`}>
-            <AddProject />
+            <AddProject onProjectAdded={handleProjectAdded} />
           </section>
         )}
         {section === 'admin' && (

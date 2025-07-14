@@ -158,6 +158,13 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
     }
   };
 
+  const editProject = (projectId: string) => {
+    // TODO: Implement edit functionality
+    // This could navigate to an edit form or open a modal
+    console.log('Edit project:', projectId);
+    alert('Edit functionality coming soon!');
+  };
+
   if (!isLoggedIn) {
     return (
       <div className="admin-container">
@@ -230,6 +237,12 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
                   <span className="project-status">{project.status}</span>
                 </div>
                 <div className="project-actions">
+                  <button
+                    onClick={() => editProject(project._id)}
+                    className="edit-project-btn"
+                  >
+                    Edit
+                  </button>
                   <button
                     onClick={() => deleteProject(project._id)}
                     className="delete-project-btn"

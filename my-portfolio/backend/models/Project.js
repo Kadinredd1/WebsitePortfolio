@@ -53,10 +53,10 @@ const projectSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
-  image: {
-    type: String, // URL to stored image
+  images: [{
+    type: String, // URLs to stored images
     default: null
-  },
+  }],
   date: {
     type: Date,
     default: Date.now

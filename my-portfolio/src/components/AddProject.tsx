@@ -41,7 +41,11 @@ interface ProjectFormData {
   images?: File[];
 }
 
-const AddProject: React.FC = () => {
+interface AddProjectProps {
+  onProjectAdded?: () => void;
+}
+
+const AddProject: React.FC<AddProjectProps> = ({ onProjectAdded }) => {
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
@@ -125,8 +129,11 @@ const AddProject: React.FC = () => {
       
       // Append all form fields
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'images' && value instanceof File) {
-          formDataToSend.append('images', value);
+        if (key === 'images' && Array.isArray(value)) {
+          // Handle multiple images
+          value.forEach((file: File) => {
+            formDataToSend.append('images', file);
+          });
         } else if (Array.isArray(value)) {
           formDataToSend.append(key, JSON.stringify(value));
         } else {
@@ -142,7 +149,7 @@ const AddProject: React.FC = () => {
       });
 
       if (response.ok) {
-        setSubmitMessage({ type: 'success', text: 'Project added successfully!' });
+        setSubmitMessage({ type: 'success', text: 'Project has been successfully added' });
         // Reset form
         setFormData({
           title: '',
@@ -157,6 +164,16 @@ const AddProject: React.FC = () => {
           lessons: [''],
           images: [],
         });
+        
+        // Notify parent component that a project was added
+        if (onProjectAdded) {
+          onProjectAdded();
+        }
+        
+        // Navigate to projects page after a short delay
+        setTimeout(() => {
+          window.location.hash = 'projects';
+        }, 1500);
       } else {
         const errorData = await response.json();
         setSubmitMessage({ type: 'error', text: errorData.message || 'Failed to add project' });
@@ -170,16 +187,16 @@ const AddProject: React.FC = () => {
 
   return (
     <div className="add-project-container">
-      <div className="form-header">
-        <h2>Add New Project</h2>
-        <p>Fill out the form below to add a new project to your portfolio</p>
-      </div>
-
       {submitMessage && (
         <div className={`submit-message ${submitMessage.type}`}>
           {submitMessage.text}
         </div>
       )}
+
+      <div className="form-header">
+        <h2>Add New Project</h2>
+        <p>Fill out the form below to add a new project to your portfolio</p>
+      </div>
 
       <form className="add-project-form" onSubmit={handleSubmit}>
         <div className="form-section">
