@@ -1,0 +1,17 @@
+# Tell GitHub to ignore these file types in language detection
+*.scss linguist-documentation
+*.css linguist-documentation
+*.sass linguist-documentation
+
+# Mark these as the main languages
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+*.js linguist-language=JavaScript
+*.jsx linguist-language=JavaScript
+
+# Ignore generated files
+node_modules/ linguist-vendored
+dist/ linguist-vendored
+build/ linguist-vendored
+*.min.js linguist-vendored
+*.min.css linguist-vendored 
