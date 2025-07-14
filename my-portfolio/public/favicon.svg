@@ -1,0 +1,19 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#111112"/>
+  
+  <!-- Logo lines -->
+  <rect x="8" y="8" width="6" height="2" rx="1" fill="#40e0d0"/>
+  <rect x="8" y="14" width="10" height="2" rx="1" fill="#40e0d0"/>
+  <rect x="12" y="20" width="8" height="2" rx="1" fill="#40e0d0"/>
+  
+  <!-- Line notches -->
+  <rect x="13" y="6" width="1" height="2" fill="#40e0d0"/>
+  <rect x="17" y="12" width="1" height="2" fill="#40e0d0"/>
+  <rect x="19" y="18" width="1" height="2" fill="#40e0d0"/>
+  
+  <!-- Stylized K -->
+  <rect x="20" y="8" width="2" height="16" rx="1" fill="#40e0d0"/>
+  <rect x="22" y="12" width="8" height="2" rx="1" fill="#40e0d0" transform="rotate(-45 22 12)"/>
+  <rect x="22" y="20" width="8" height="2" rx="1" fill="#40e0d0" transform="rotate(45 22 20)"/>
+</svg> 
