@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import sharp from 'sharp';
 import Project from '../models/Project.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
@@ -38,6 +39,27 @@ const upload = multer({
   }
 });
 
+// Function to resize images for project cards
+const resizeImage = async (filePath, filename) => {
+  try {
+    const resizedFilename = `resized-${filename}`;
+    const resizedPath = path.join(__dirname, '../uploads/', resizedFilename);
+    
+    await sharp(filePath)
+      .resize(600, 450, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .jpeg({ quality: 90 })
+      .toFile(resizedPath);
+    
+    return resizedFilename;
+  } catch (error) {
+    console.error('Error resizing image:', error);
+    return filename; // Return original filename if resize fails
+  }
+};
+
 // GET all projects
 router.get('/', async (req, res) => {
   try {
@@ -62,7 +84,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create new project (admin only)
-router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), upload.single('image'), async (req, res) => {
+router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), upload.array('images'), async (req, res) => {
   try {
     const {
       title,
@@ -99,9 +121,17 @@ router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), uploa
       lessons: parsedLessons
     };
 
-    // Add image URL if file was uploaded
-    if (req.file) {
-      projectData.image = `/uploads/${req.file.filename}`;
+    // Add images URLs if files were uploaded
+    if (req.files && req.files.length > 0) {
+      const resizedImages = [];
+      
+      for (const file of req.files) {
+        const filePath = path.join(__dirname, '../uploads/', file.filename);
+        const resizedFilename = await resizeImage(filePath, file.filename);
+        resizedImages.push(`/uploads/${resizedFilename}`);
+      }
+      
+      projectData.images = resizedImages;
     }
 
     const project = new Project(projectData);
@@ -121,7 +151,7 @@ router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), uploa
 });
 
 // PUT update project (admin only)
-router.put('/:id', authenticateToken, requireRole(['admin', 'super_admin']), upload.single('image'), async (req, res) => {
+router.put('/:id', authenticateToken, requireRole(['admin', 'super_admin']), upload.array('images'), async (req, res) => {
   try {
     const {
       title,
@@ -157,9 +187,17 @@ router.put('/:id', authenticateToken, requireRole(['admin', 'super_admin']), upl
       lessons: parsedLessons
     };
 
-    // Add image URL if new file was uploaded
-    if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+    // Add images URLs if new files were uploaded
+    if (req.files && req.files.length > 0) {
+      const resizedImages = [];
+      
+      for (const file of req.files) {
+        const filePath = path.join(__dirname, '../uploads/', file.filename);
+        const resizedFilename = await resizeImage(filePath, file.filename);
+        resizedImages.push(`/uploads/${resizedFilename}`);
+      }
+      
+      updateData.images = resizedImages;
     }
 
     const updatedProject = await Project.findByIdAndUpdate(
