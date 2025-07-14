@@ -80,7 +80,17 @@ const App: React.FC = () => {
       {/* Single-line Navbar */}
       <nav className="navbar">
         <div className="navbar-inner">
-          <button className="nav-name" onClick={() => handleSectionChange('landing')}>Kadin.me</button>
+          <button className="nav-name" onClick={() => handleSectionChange('landing')}>
+            <div className="logo">
+              <div className="logo-icon">
+                <div className="logo-line logo-line-1"></div>
+                <div className="logo-line logo-line-2"></div>
+                <div className="logo-line logo-line-3"></div>
+                <div className="logo-k"></div>
+              </div>
+              <span className="logo-text">kadin.me</span>
+            </div>
+          </button>
           <div className="nav-buttons">
             <button
               className={`nav-btn${section === 'projects' ? ' active' : ''}`}

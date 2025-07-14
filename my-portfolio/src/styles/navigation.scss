@@ -70,6 +70,152 @@ body, html {
   }
 }
 
+// Logo Styles
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
+}
+
+.logo-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.logo-line {
+  position: absolute;
+  background: #fff;
+  border-radius: 1px;
+  
+  &.logo-line-1 {
+    top: 4px;
+    left: 4px;
+    width: 8px;
+    height: 2px;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      right: 0;
+      width: 1px;
+      height: 2px;
+      background: #fff;
+    }
+  }
+  
+  &.logo-line-2 {
+    top: 12px;
+    left: 4px;
+    width: 12px;
+    height: 2px;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      right: 0;
+      width: 1px;
+      height: 2px;
+      background: #fff;
+    }
+  }
+  
+  &.logo-line-3 {
+    top: 20px;
+    left: 8px;
+    width: 10px;
+    height: 2px;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      right: 0;
+      width: 1px;
+      height: 2px;
+      background: #fff;
+    }
+  }
+}
+
+.logo-k {
+  position: absolute;
+  top: 4px;
+  left: 16px;
+  width: 12px;
+  height: 24px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 24px;
+    background: #fff;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 2px;
+    width: 10px;
+    height: 2px;
+    background: #fff;
+    transform: rotate(-45deg);
+    transform-origin: left center;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 2px;
+    width: 10px;
+    height: 2px;
+    background: #fff;
+    transform: rotate(45deg);
+    transform-origin: left center;
+  }
+}
+
+.logo-text {
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-transform: lowercase;
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+}
+
 .nav-name {
   font-size: 1.3rem;
   font-weight: bold;
@@ -87,11 +233,31 @@ body, html {
   @media (max-width: 768px) {
     font-size: 1.1rem;
   }
-}
-
-.nav-name:hover {
-  color: #a3a3ff;
-  text-decoration: underline;
+  
+  &:hover {
+    color: #fff;
+    text-decoration: none;
+    
+    .logo-icon {
+      transform: scale(1.05);
+    }
+    
+    .logo-text {
+      color: #fff;
+    }
+  }
+  
+  &:focus {
+    outline: none;
+  }
+  
+  .logo-icon {
+    transition: transform 0.2s ease;
+  }
+  
+  .logo-text {
+    transition: color 0.2s ease;
+  }
 }
 
 .nav-buttons {
