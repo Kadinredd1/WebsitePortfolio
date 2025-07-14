@@ -10,6 +10,7 @@ const App: React.FC = () => {
   // Admin authentication state
   const [isAdmin, setIsAdmin] = React.useState(false);
   const [projectsRefreshKey, setProjectsRefreshKey] = React.useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   // Get initial section from URL hash or default to 'projects'
   const getInitialSection = (): string => {
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const handleSectionChange = (newSection: string) => {
     setSection(newSection);
     window.location.hash = newSection;
+    setMobileMenuOpen(false); // Close mobile menu when navigating
   };
 
   // Set initial hash if none exists
@@ -107,8 +109,60 @@ const App: React.FC = () => {
               {isAdmin ? 'Admin' : 'Login'}
             </button>
           </div>
+          <button 
+            className="mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            ☰
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+          <button 
+            className="mobile-menu-close"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            ×
+          </button>
+          <div className="mobile-menu-content">
+            <button
+              className={`nav-btn${section === 'landing' ? ' active' : ''}`}
+              onClick={() => handleSectionChange('landing')}
+            >
+              Home
+            </button>
+            <button
+              className={`nav-btn${section === 'projects' ? ' active' : ''}`}
+              onClick={() => handleSectionChange('projects')}
+            >
+              Projects
+            </button>
+            <button
+              className={`nav-btn${section === 'github' ? ' active' : ''}`}
+              onClick={() => handleSectionChange('github')}
+            >
+              GitHub
+            </button>
+            {isAdmin && (
+              <button
+                className={`nav-btn${section === 'add' ? ' active' : ''}`}
+                onClick={() => handleSectionChange('add')}
+              >
+                Add Project
+              </button>
+            )}
+            <button
+              className={`nav-btn${section === 'admin' ? ' active' : ''}`}
+              onClick={handleAdminClick}
+            >
+              {isAdmin ? 'Admin' : 'Login'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="main-content">

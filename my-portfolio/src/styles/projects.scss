@@ -79,6 +79,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
     padding: 0 1rem;
   }
   
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+    padding: 0 0.75rem;
+  }
+  
   @media (min-width: 1200px) {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
@@ -115,6 +120,20 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
       
       .tech-tag {
         transform: translateY(-2px);
+      }
+    }
+    
+    // Touch-friendly interactions for mobile
+    @media (max-width: 768px) {
+      &:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+      }
+      
+      // Reduce hover effects on touch devices
+      &:hover {
+        transform: none;
+        box-shadow: $shadow-light;
       }
     }
     
@@ -190,6 +209,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         opacity: 0;
         transition: opacity $transition-speed ease;
         backdrop-filter: blur(4px);
+        
+        @media (max-width: 768px) {
+          font-size: 1rem;
+          content: 'Tap to explore';
+        }
       }
       
       // Project status badge
@@ -203,6 +227,13 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        
+        @media (max-width: 480px) {
+          top: 0.5rem;
+          right: 0.5rem;
+          padding: 0.2rem 0.5rem;
+          font-size: 0.7rem;
+        }
         
         &.live {
           background: rgba(34, 197, 94, 0.2);
@@ -246,6 +277,15 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
           }
         }
         
+        // Touch-friendly interactions
+        @media (max-width: 768px) {
+          &:active {
+            img {
+              transform: scale(1.05);
+            }
+          }
+        }
+        
         img {
           width: 100%;
           height: 100%;
@@ -269,6 +309,13 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
           transition: all $transition-speed ease;
           backdrop-filter: blur(4px);
           border: 1px solid rgba(255, 255, 255, 0.1);
+          
+          @media (max-width: 480px) {
+            top: 0.5rem;
+            left: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+          }
         }
         
         .image-overlay {
@@ -300,6 +347,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
             padding: 0.5rem 1rem;
             border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            
+            @media (max-width: 768px) {
+              font-size: 0.9rem;
+              padding: 0.4rem 0.8rem;
+            }
           }
         }
       }
@@ -308,6 +360,10 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
     .project-content {
       padding: 1.25rem 1rem; // Reduced padding for more image space
       
+      @media (max-width: 480px) {
+        padding: 1rem 0.75rem;
+      }
+      
       .project-title {
         font-size: 1.1rem;
         font-weight: 700;
@@ -315,6 +371,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         color: $primary-color;
         transition: all $transition-speed ease;
         line-height: 1.3;
+        
+        @media (max-width: 480px) {
+          font-size: 1rem;
+          margin-bottom: 0.3rem;
+        }
         
         // Truncate long titles
         overflow: hidden;
@@ -327,6 +388,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         line-height: 1.5;
         margin-bottom: 0.75rem;
         font-size: 0.85rem;
+        
+        @media (max-width: 480px) {
+          font-size: 0.8rem;
+          margin-bottom: 0.6rem;
+        }
         
         // Better text handling
         display: -webkit-box;
@@ -344,6 +410,14 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         font-size: 0.75rem;
         color: $text-muted;
         
+        @media (max-width: 480px) {
+          font-size: 0.7rem;
+          margin-bottom: 0.5rem;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.3rem;
+        }
+        
         .project-date {
           display: flex;
           align-items: center;
@@ -359,13 +433,25 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
           display: flex;
           gap: 0.75rem;
           
+          @media (max-width: 480px) {
+            gap: 0.5rem;
+          }
+          
           a {
             color: $primary-color;
             text-decoration: none;
             transition: color $transition-speed ease;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            
+            @media (max-width: 480px) {
+              padding: 0.2rem 0.4rem;
+              font-size: 0.8rem;
+            }
             
             &:hover {
               color: $secondary-color;
+              background: rgba($primary-color, 0.1);
             }
             
             &.github::before {
@@ -385,6 +471,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         gap: 0.4rem;
         margin-bottom: 0.75rem;
         
+        @media (max-width: 480px) {
+          gap: 0.3rem;
+          margin-bottom: 0.6rem;
+        }
+        
         .tech-tag {
           padding: 3px 8px;
           border-radius: 10px;
@@ -392,6 +483,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
           font-weight: 500;
           transition: all $transition-speed cubic-bezier(0.4, 0, 0.2, 1);
           cursor: pointer;
+          
+          @media (max-width: 480px) {
+            padding: 2px 6px;
+            font-size: 0.65rem;
+          }
           
           // Default tech tag
           @include tech-tag-variant(
