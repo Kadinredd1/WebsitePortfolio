@@ -1,42 +1,36 @@
 import React, { useState } from 'react';
 import '../styles/addProject.scss';
 import { API_ENDPOINTS } from '../config/api';
+import Select from 'react-select';
 
 // Predefined list of technologies
 const TECHNOLOGIES = [
   // Frontend
-  'React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby',
-  'TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Sass', 'Less', 'Tailwind CSS',
-  'Bootstrap', 'Material-UI', 'Ant Design', 'Chakra UI', 'Styled Components',
+  'Angular', 'Ant Design', 'Bootstrap', 'Chakra UI', 'CSS3', 'Gatsby', 'HTML5', 'JavaScript', 'Less', 'Material-UI', 'Next.js', 'Nuxt.js', 'React', 'Sass', 'Styled Components', 'Svelte', 'Tailwind CSS', 'TypeScript', 'Vue.js',
   
   // Backend
-  'Node.js', 'Express.js', 'NestJS', 'Fastify', 'Koa', 'Python', 'Django',
-  'Flask', 'FastAPI', 'Java', 'Spring Boot', 'C#', '.NET', 'ASP.NET Core',
-  'PHP', 'Laravel', 'Symfony', 'Ruby', 'Ruby on Rails', 'Go', 'Gin',
+  '.NET', 'ASP.NET Core', 'C#', 'Django', 'Express.js', 'FastAPI', 'Fastify', 'Flask', 'Gin', 'Go', 'Java', 'Koa', 'Laravel', 'NestJS', 'Node.js', 'PHP', 'Python', 'Ruby', 'Ruby on Rails', 'Spring Boot', 'Symfony',
   
   // Databases
-  'MongoDB', 'PostgreSQL', 'MySQL', 'SQLite', 'Redis', 'Firebase',
-  'Supabase', 'DynamoDB', 'Elasticsearch',
+  'DynamoDB', 'Elasticsearch', 'Firebase', 'MongoDB', 'MySQL', 'PostgreSQL', 'Redis', 'SQLite', 'Supabase',
   
   // Cloud & DevOps
-  'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Vercel',
-  'Netlify', 'Heroku', 'DigitalOcean', 'GitHub Actions', 'CI/CD',
+  'AWS', 'Azure', 'CI/CD', 'DigitalOcean', 'Docker', 'GitHub Actions', 'Google Cloud', 'Heroku', 'Kubernetes', 'Netlify', 'Vercel',
   
   // Tools & Libraries
-  'Git', 'Webpack', 'Vite', 'Babel', 'ESLint', 'Prettier', 'Jest',
-  'Cypress', 'Storybook', 'GraphQL', 'REST API', 'WebSocket',
-  'Socket.io', 'Prisma', 'Sequelize', 'Mongoose', 'JWT', 'OAuth',
+  'Babel', 'Cypress', 'ESLint', 'Git', 'GraphQL', 'Jest', 'JWT', 'Mongoose', 'OAuth', 'Prettier', 'Prisma', 'REST API', 'Sequelize', 'Socket.io', 'Storybook', 'Vite', 'WebSocket', 'Webpack',
   
   // Mobile & Desktop
-  'React Native', 'Flutter', 'Electron', 'Ionic', 'Cordova',
+  'Cordova', 'Electron', 'Flutter', 'Ionic', 'React Native',
   
   // AI & ML
-  'TensorFlow', 'PyTorch', 'OpenAI API', 'Machine Learning', 'Data Science'
-];
+  'Data Science', 'Machine Learning', 'OpenAI API', 'PyTorch', 'TensorFlow'
+].sort();
 
 interface ProjectFormData {
   title: string;
   description: string;
+  longDescription: string;
   technologies: string[];
   projectURL: string;
   demoURL: string;
@@ -44,13 +38,14 @@ interface ProjectFormData {
   features: string[];
   challenges: string[];
   lessons: string[];
-  image?: File | null;
+  images?: File[];
 }
 
 const AddProject: React.FC = () => {
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
+    longDescription: '',
     technologies: [],
     projectURL: '',
     demoURL: '',
@@ -58,12 +53,12 @@ const AddProject: React.FC = () => {
     features: [''],
     challenges: [''],
     lessons: [''],
-    image: null
+    images: [],
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [selectedTech, setSelectedTech] = useState('');
+  const techOptions = TECHNOLOGIES.map(tech => ({ label: tech, value: tech }));
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -74,10 +69,10 @@ const AddProject: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+    const files = Array.from(e.target.files || []);
     setFormData(prev => ({
       ...prev,
-      image: file
+      images: files
     }));
   };
 
@@ -102,14 +97,15 @@ const AddProject: React.FC = () => {
     }));
   };
 
-  const addTechnology = () => {
-    if (selectedTech && !formData.technologies.includes(selectedTech)) {
+  const handleTechChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    if (selectedValue && !formData.technologies.includes(selectedValue)) {
       setFormData(prev => ({
         ...prev,
-        technologies: [...prev.technologies, selectedTech]
+        technologies: [...prev.technologies, selectedValue]
       }));
-      setSelectedTech('');
     }
+    // setSelectedTech(''); // Reset the select to empty
   };
 
   const removeTechnology = (tech: string) => {
@@ -129,8 +125,8 @@ const AddProject: React.FC = () => {
       
       // Append all form fields
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'image' && value instanceof File) {
-          formDataToSend.append('image', value);
+        if (key === 'images' && value instanceof File) {
+          formDataToSend.append('images', value);
         } else if (Array.isArray(value)) {
           formDataToSend.append(key, JSON.stringify(value));
         } else {
@@ -138,8 +134,10 @@ const AddProject: React.FC = () => {
         }
       });
 
+      const token = localStorage.getItem('adminToken');
       const response = await fetch(API_ENDPOINTS.projects, {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formDataToSend
       });
 
@@ -149,6 +147,7 @@ const AddProject: React.FC = () => {
         setFormData({
           title: '',
           description: '',
+          longDescription: '',
           technologies: [],
           projectURL: '',
           demoURL: '',
@@ -156,7 +155,7 @@ const AddProject: React.FC = () => {
           features: [''],
           challenges: [''],
           lessons: [''],
-          image: null
+          images: [],
         });
       } else {
         const errorData = await response.json();
@@ -211,6 +210,19 @@ const AddProject: React.FC = () => {
               rows={5}
             />
           </div>
+
+          <div className="form-group">
+            <label htmlFor="longDescription">Project Long Description *</label>
+            <textarea
+              id="longDescription"
+              name="longDescription"
+              value={formData.longDescription}
+              onChange={handleInputChange}
+              required
+              placeholder="Provide a detailed description of your project"
+              rows={7}
+            />
+          </div>
         </div>
 
         <div className="form-section">
@@ -260,21 +272,27 @@ const AddProject: React.FC = () => {
           <h3>Technologies Used</h3>
           
           <div className="tech-input-group">
-            <select
-              value={selectedTech}
-              onChange={(e) => setSelectedTech(e.target.value)}
-              className="tech-select"
-            >
-              <option value="">Select a technology...</option>
-              {TECHNOLOGIES.map((tech) => (
-                <option key={tech} value={tech}>
-                  {tech}
-                </option>
-              ))}
-            </select>
-            <button type="button" onClick={addTechnology} className="add-tech-btn">
-              Add
-            </button>
+            <Select
+              options={techOptions}
+              isMulti
+              isClearable={false}
+              placeholder="Select or search technologies..."
+              value={formData.technologies.map(tech => ({ label: tech, value: tech }))}
+              onChange={(selected) => {
+                setFormData(prev => ({
+                  ...prev,
+                  technologies: selected ? selected.map((opt: any) => opt.value) : []
+                }));
+              }}
+              classNamePrefix="react-select"
+              styles={{
+                container: (base) => ({ ...base, width: '100%' }),
+                control: (base) => ({ ...base, width: '100%' }),
+                valueContainer: (base) => ({ ...base, width: '100%' }),
+                input: (base) => ({ ...base, width: '100%', minWidth: 0, color: '#fff' }),
+                menu: (base) => ({ ...base, width: '100%' }),
+              }}
+            />
           </div>
 
           <div className="tech-tags">
@@ -386,15 +404,16 @@ const AddProject: React.FC = () => {
         <div className="form-section">
           <h3>Project Image</h3>
           <div className="form-group">
-            <label htmlFor="image">Upload Screenshot</label>
+            <label htmlFor="images">Upload Screenshots (Multiple)</label>
             <input
               type="file"
-              id="image"
-              name="image"
+              id="images"
+              name="images"
               accept="image/*"
+              multiple
               onChange={handleFileChange}
             />
-            <small>Upload a screenshot or image of your project (optional)</small>
+            <small>Upload multiple screenshots or images of your project (optional)</small>
           </div>
         </div>
 
