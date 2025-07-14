@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://10.0.0.204:5000';
  
 export const API_ENDPOINTS = {
   projects: `${API_BASE_URL}/api/projects`,
