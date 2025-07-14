@@ -8,9 +8,11 @@
 
   "exclude": [
       "node_modules",
-      "src/components/UnitTest/*"
+      "src/components/UnitTest/*",
+      "**/*.test.ts",
+      "**/*.test.tsx"
     ],
-    
+
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
