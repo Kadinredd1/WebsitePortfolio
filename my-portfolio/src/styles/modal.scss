@@ -13,11 +13,24 @@ $modal-radius: 20px;
   height: 100%;
   background: $modal-bg;
   backdrop-filter: blur(10px);
+  
   &.active {
     display: flex;
     align-items: center;
     justify-content: center;
     animation: modalFadeIn 0.3s ease-out;
+  }
+  
+  // Mobile optimizations
+  @media (max-width: 768px) {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+    padding-top: 1rem;
   }
 }
 
@@ -33,6 +46,43 @@ $modal-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   animation: modalSlideIn 0.4s ease-out;
+  
+  // Mobile optimizations
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100vh - 2rem);
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    max-height: calc(100vh - 1rem);
+    border-radius: 12px;
+  }
+  
+  // Touch-friendly scrolling
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
 }
 
 .modal-close {
@@ -51,8 +101,153 @@ $modal-radius: 20px;
   align-items: center;
   justify-content: center;
   transition: 0.3s;
+  z-index: 10;
+  
   &:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
+  }
+  
+  // Mobile optimizations
+  @media (max-width: 768px) {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.3rem;
+  }
+  
+  @media (max-width: 480px) {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+  }
+  
+  // Touch-friendly interactions
+  @media (max-width: 768px) {
+    &:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// Modal animations
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Mobile-specific modal content styles
+.modal-project-details {
+  @media (max-width: 768px) {
+    .project-title {
+      font-size: 1.5rem !important;
+      margin-bottom: 0.75rem !important;
+    }
+    
+    .project-description {
+      font-size: 0.9rem !important;
+      line-height: 1.6 !important;
+    }
+    
+    .project-tech {
+      gap: 0.5rem !important;
+      
+      .tech-tag {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.8rem !important;
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .project-title {
+      font-size: 1.3rem !important;
+    }
+    
+    .project-description {
+      font-size: 0.85rem !important;
+    }
+    
+    .project-tech {
+      gap: 0.4rem !important;
+      
+      .tech-tag {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.75rem !important;
+      }
+    }
+  }
+}
+
+// Image gallery mobile optimizations
+.modal-image-gallery {
+  @media (max-width: 768px) {
+    .gallery-main {
+      height: 300px !important;
+      border-radius: 12px !important;
+    }
+    
+    .gallery-thumbnails {
+      gap: 0.5rem !important;
+      margin-top: 1rem !important;
+      
+      .thumbnail {
+        width: 60px !important;
+        height: 40px !important;
+        border-radius: 8px !important;
+      }
+    }
+    
+    .gallery-nav {
+      .nav-btn {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.2rem !important;
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .gallery-main {
+      height: 250px !important;
+      border-radius: 8px !important;
+    }
+    
+    .gallery-thumbnails {
+      gap: 0.4rem !important;
+      
+      .thumbnail {
+        width: 50px !important;
+        height: 35px !important;
+        border-radius: 6px !important;
+      }
+    }
+    
+    .gallery-nav {
+      .nav-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.1rem !important;
+      }
+    }
   }
 } 

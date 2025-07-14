@@ -30,6 +30,14 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
   max-width: 1000px;
   margin: 0 auto;
   padding: 0 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 0 0.75rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 0.5rem;
+  }
 }
 
 // Admin Login
@@ -41,20 +49,50 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
   margin: 2rem auto;
   border: 1px solid rgba(255, 255, 255, 0.1);
   
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+    border-radius: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    margin: 1rem auto;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+  
   .login-header {
     text-align: center;
     margin-bottom: 2rem;
+    
+    @media (max-width: 480px) {
+      margin-bottom: 1.5rem;
+    }
+    
     h2 {
       @include gradient-text($primary-color, $secondary-color);
       font-size: 2rem;
       font-weight: 800;
       margin: 0 0 0.5rem 0;
       letter-spacing: 0.04em;
+      
+      @media (max-width: 768px) {
+        font-size: 1.75rem;
+      }
+      
+      @media (max-width: 480px) {
+        font-size: 1.5rem;
+      }
     }
     p {
       color: $text-secondary;
       font-size: 1rem;
       margin: 0;
+      
+      @media (max-width: 480px) {
+        font-size: 0.9rem;
+      }
     }
   }
 
@@ -66,11 +104,21 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
     border-radius: 12px;
     margin-bottom: 1.5rem;
     font-size: 0.9rem;
+    
+    @media (max-width: 480px) {
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
   }
 
   .login-form {
     .form-group {
       margin-bottom: 1.5rem;
+      
+      @media (max-width: 480px) {
+        margin-bottom: 1.25rem;
+      }
 
       label {
         display: block;
@@ -78,6 +126,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         font-weight: 500;
         margin-bottom: 0.5rem;
         font-size: 0.9rem;
+        
+        @media (max-width: 480px) {
+          font-size: 0.85rem;
+          margin-bottom: 0.4rem;
+        }
       }
 
       input {
@@ -89,6 +142,14 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
         color: $text-primary;
         font-size: 0.9rem;
         transition: all $transition-speed ease;
+        min-height: 44px; // Touch-friendly minimum size
+        
+        @media (max-width: 480px) {
+          padding: 0.6rem;
+          font-size: 16px; // Prevents zoom on iOS
+          border-radius: 8px;
+          min-height: 40px;
+        }
 
         &::placeholder {
           color: $text-muted;
@@ -124,10 +185,22 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
       font-weight: 600;
       cursor: pointer;
       transition: all $transition-speed ease;
+      min-height: 44px; // Touch-friendly minimum size
+      
+      @media (max-width: 480px) {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        min-height: 40px;
+        border-radius: 8px;
+      }
       
       &:hover:not(:disabled) {
         transform: translateY(-2px);
         box-shadow: $shadow-light;
+      }
+      
+      &:active:not(:disabled) {
+        transform: scale(0.98);
       }
       
       &:disabled {
@@ -149,6 +222,21 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 16px;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+  }
 
   .admin-info {
     h2 {
@@ -156,12 +244,24 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
       font-size: 1.8rem;
       font-weight: 700;
       margin: 0 0 0.25rem 0;
+      
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+      
+      @media (max-width: 480px) {
+        font-size: 1.3rem;
+      }
     }
 
     p {
       color: $text-secondary;
       font-size: 0.9rem;
       margin: 0;
+      
+      @media (max-width: 480px) {
+        font-size: 0.85rem;
+      }
     }
   }
 
@@ -174,10 +274,22 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
     cursor: pointer;
     transition: all $transition-speed ease;
     font-weight: 500;
+    min-height: 44px; // Touch-friendly minimum size
+    
+    @media (max-width: 480px) {
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      min-height: 40px;
+      font-size: 0.9rem;
+    }
 
     &:hover {
       background: rgba($accent-color, 0.3);
       transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: scale(0.98);
     }
   }
 }
@@ -190,6 +302,14 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
   @media (min-width: 768px) {
     grid-template-columns: 2fr 1fr;
   }
+  
+  @media (max-width: 768px) {
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 1rem;
+  }
 }
 
 // Admin Sections
@@ -198,6 +318,16 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
   border-radius: 20px;
   padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    border-radius: 12px;
+  }
 
   h3 {
     color: $primary-color;
