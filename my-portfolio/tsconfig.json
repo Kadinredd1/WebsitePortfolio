@@ -4,11 +4,13 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "exclude": [
+  },
+
+  "exclude": [
       "node_modules",
       "src/components/UnitTest/*"
-    ]
-  },
+    ],
+    
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
