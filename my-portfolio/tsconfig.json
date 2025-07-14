@@ -3,7 +3,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "exclude": [
+      "node_modules",
+      "src/components/UnitTest/*"
+    ]
   },
   "files": [],
   "references": [
