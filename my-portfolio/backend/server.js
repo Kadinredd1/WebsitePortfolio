@@ -69,7 +69,8 @@ app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`Network accessible at http://10.0.0.204:${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
