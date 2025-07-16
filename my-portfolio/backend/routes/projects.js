@@ -3,6 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
+import cloudinary from '../config/cloudinary.js';
 import Project from '../models/Project.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
@@ -10,19 +11,9 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../uploads/'));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+// Configure multer for memory storage (for Cloudinary)
 const upload = multer({ 
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },
@@ -39,24 +30,39 @@ const upload = multer({
   }
 });
 
-// Function to resize images for project cards
-const resizeImage = async (filePath, filename) => {
+// Function to upload image to Cloudinary
+const uploadToCloudinary = async (file, folder = 'portfolio') => {
   try {
-    const resizedFilename = `resized-${filename}`;
-    const resizedPath = path.join(__dirname, '../uploads/', resizedFilename);
-    
-    await sharp(filePath)
+    // Resize image for project cards
+    const resizedBuffer = await sharp(file.buffer)
       .resize(600, 450, {
         fit: 'cover',
         position: 'center'
       })
       .jpeg({ quality: 90 })
-      .toFile(resizedPath);
-    
-    return resizedFilename;
+      .toBuffer();
+
+    // Upload to Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          folder: folder,
+          resource_type: 'image',
+          transformation: [
+            { width: 600, height: 450, crop: 'fill' }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(resizedBuffer);
+    });
+
+    return result.secure_url;
   } catch (error) {
-    console.error('Error resizing image:', error);
-    return filename; // Return original filename if resize fails
+    console.error('Error uploading to Cloudinary:', error);
+    throw error;
   }
 };
 
@@ -121,17 +127,16 @@ router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), uploa
       lessons: parsedLessons
     };
 
-    // Add images URLs if files were uploaded
+    // Upload images to Cloudinary if files were uploaded
     if (req.files && req.files.length > 0) {
-      const resizedImages = [];
+      const imageUrls = [];
       
       for (const file of req.files) {
-        const filePath = path.join(__dirname, '../uploads/', file.filename);
-        const resizedFilename = await resizeImage(filePath, file.filename);
-        resizedImages.push(`/uploads/${resizedFilename}`);
+        const imageUrl = await uploadToCloudinary(file, 'portfolio');
+        imageUrls.push(imageUrl);
       }
       
-      projectData.images = resizedImages;
+      projectData.images = imageUrls;
     }
 
     const project = new Project(projectData);
@@ -187,17 +192,16 @@ router.put('/:id', authenticateToken, requireRole(['admin', 'super_admin']), upl
       lessons: parsedLessons
     };
 
-    // Add images URLs if new files were uploaded
+    // Upload new images to Cloudinary if files were uploaded
     if (req.files && req.files.length > 0) {
-      const resizedImages = [];
+      const imageUrls = [];
       
       for (const file of req.files) {
-        const filePath = path.join(__dirname, '../uploads/', file.filename);
-        const resizedFilename = await resizeImage(filePath, file.filename);
-        resizedImages.push(`/uploads/${resizedFilename}`);
+        const imageUrl = await uploadToCloudinary(file, 'portfolio');
+        imageUrls.push(imageUrl);
       }
       
-      updateData.images = resizedImages;
+      updateData.images = imageUrls;
     }
 
     const updatedProject = await Project.findByIdAndUpdate(
