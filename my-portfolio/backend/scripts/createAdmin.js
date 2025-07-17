@@ -22,19 +22,14 @@ async function createAdmin() {
 
     // Create super admin
     const superAdmin = new Admin({
-      username: 'Kdredd03',
-      email: 'kadinredd08@gmail.com',
-      password: 'Reddman23!', // Change this in production!
+      username: process.env.ADMIN_USERNAME,
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD, // Change this in production!
       role: 'super_admin',
       isActive: true
     });
 
     await superAdmin.save();
-    console.log('✅ Super admin created successfully!');
-    console.log('📧 Username: Kdredd03');
-    console.log('📧 Email: kadinredd08@gmail.com');
-    console.log('🔑 Password: Reddman23!');
-    console.log('⚠️  IMPORTANT: Change the password immediately after first login!');
 
   } catch (error) {
     console.error('❌ Error creating admin:', error);
