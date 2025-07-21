@@ -92,12 +92,12 @@ const App: React.FC = () => {
             </div>
           </button>
           <div className="nav-buttons">
-            <button
+            {/* <button
               className={`nav-btn${section === 'projects' ? ' active' : ''}`}
               onClick={() => handleSectionChange('projects')}
             >
               Projects
-            </button>
+            </button> */}
             <button
               className={`nav-btn${section === 'github' ? ' active' : ''}`}
               onClick={() => handleSectionChange('github')}
@@ -144,12 +144,12 @@ const App: React.FC = () => {
             >
               Home
             </button>
-            <button
+            {/* <button
               className={`nav-btn${section === 'projects' ? ' active' : ''}`}
               onClick={() => handleSectionChange('projects')}
             >
               Projects
-            </button>
+            </button> */}
             <button
               className={`nav-btn${section === 'github' ? ' active' : ''}`}
               onClick={() => handleSectionChange('github')}
@@ -181,9 +181,9 @@ const App: React.FC = () => {
             <LandingPage />
           </section>
         )}
-        <section className={`content-section${section === 'projects' ? ' active' : ''}`}>
+        {/* <section className={`content-section${section === 'projects' ? ' active' : ''}`}>
           <Projects refreshKey={projectsRefreshKey} />
-        </section>
+        </section> */}
         <section className={`content-section${section === 'github' ? ' active' : ''}`}>
           <GitHub />
         </section>
