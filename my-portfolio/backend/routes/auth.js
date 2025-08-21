@@ -26,11 +26,11 @@ router.get('/github/callback',
       );
       
       // Redirect to frontend with success and token
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://kredd.dev';
       res.redirect(`${frontendUrl}/admin?login=success&token=${token}`);
     } catch (error) {
       console.error('GitHub OAuth callback error:', error);
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://kredd.dev';
       res.redirect(`${frontendUrl}/admin?login=error&message=Authentication failed`);
     }
   }
