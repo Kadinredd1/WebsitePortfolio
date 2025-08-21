@@ -118,16 +118,8 @@ app.use('/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
-  console.log('Health check requested');
-  res.json({ 
-    message: 'Backend server is running!',
-    timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    environment: process.env.NODE_ENV || 'development',
-    port: PORT
-  });
+  res.json({ message: 'Backend server is running!' });
 });
 
 // Test route to verify server is working
