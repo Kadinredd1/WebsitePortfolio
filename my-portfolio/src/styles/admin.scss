@@ -550,3 +550,150 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
   60% { transform: scale(1.1) translateY(10px); opacity: 1; }
   100% { transform: scale(1) translateY(0); }
 } 
+
+.login-form-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 75vh;
+}
+
+.login-form-content {
+  background: rgba(24, 24, 27, 0.95);
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid #23232b;
+  
+  h2 {
+    margin-top: 3px;
+    text-align: center;
+    color: #fff;
+  }
+  
+  .error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+}
+
+.login-form {
+  .form-group {
+    margin-bottom: 15px;
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #fff;
+    }
+    
+    input {
+      width: 97%;
+      padding: 5px;
+      border: 1px solid #23232b;
+      border-radius: 4px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      
+      &::placeholder {
+        color: #6b7280;
+      }
+      
+      &:focus {
+        outline: none;
+        border-color: #0d0e0e;
+        box-shadow: 0 0 0 2px rgba(20, 21, 21, 0.25);
+      }
+      
+      &:disabled {
+        background: rgba(255, 255, 255, 0.02);
+        cursor: not-allowed;
+        color: #6b7280;
+      }
+    }
+  }
+  
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #e6eeeda2, #892be2b4);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #e6eeed, #8a2be2);
+    }
+    
+    &:disabled {
+      background: #6b7280;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.login-divider {
+  text-align: center;
+  margin: 20px 0;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #ddd;
+  }
+}
+
+.github-login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #24292e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+  margin-top: 40px;
+  
+  &:hover:not(:disabled) {
+    background: #1b1f23;
+  }
+  
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.login-info {
+  margin-top: 15px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+} 

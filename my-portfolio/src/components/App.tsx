@@ -1,5 +1,5 @@
 import React from 'react';
-//import Projects from './Projects';
+import Projects from './Projects';
 import GitHub from './GitHub';
 import AddProject from './AddProject';
 import Admin from './Admin';
@@ -7,17 +7,19 @@ import LandingPage from './LandingPage';
 import '../styles/navigation.scss';
 
 const App: React.FC = () => {
-  // Admin authentication state
   const [isAdmin, setIsAdmin] = React.useState(false);
-  const [{/*projectsRefreshKey*/}, setProjectsRefreshKey] = React.useState(0);
+  const [projectsRefreshKey, setProjectsRefreshKey] = React.useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
-  // Get initial section from URL hash or default to 'projects'
+  // Valid sections configuration
+  const VALID_SECTIONS = ['landing', 'projects', 'github', 'admin'] as const;
+  const ADMIN_SECTIONS = [...VALID_SECTIONS, 'add'] as const;
+
+  // Get initial section from URL hash or default to 'landing'
   const getInitialSection = (): string => {
     const hash = window.location.hash.replace('#', '');
-    const validSections = ['landing', 'projects', 'github', 'admin'];
-    if (isAdmin) validSections.push('add');
-    return validSections.includes(hash) ? hash : 'landing';
+    const validSections = isAdmin ? ADMIN_SECTIONS : VALID_SECTIONS;
+    return validSections.includes(hash as any) ? hash : 'landing';
   };
 
   const [section, setSection] = React.useState(getInitialSection);
@@ -26,7 +28,7 @@ const App: React.FC = () => {
   const handleSectionChange = (newSection: string) => {
     setSection(newSection);
     window.location.hash = newSection;
-    setMobileMenuOpen(false); // Close mobile menu when navigating
+    setMobileMenuOpen(false);
   };
 
   // Set initial hash if none exists
@@ -36,13 +38,28 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Handle GitHub OAuth callback
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const loginSuccess = urlParams.get('login');
+    const token = urlParams.get('token');
+    
+    if (loginSuccess === 'success' && token) {
+      localStorage.setItem('adminToken', token);
+      setIsAdmin(true);
+      setSection('admin');
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+    }
+  }, []);
+
   // Listen for hash changes (back/forward buttons)
   React.useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      const validSections = ['landing', 'projects', 'github', 'admin'];
-      if (isAdmin) validSections.push('add');
-      if (validSections.includes(hash)) {
+      const validSections = isAdmin ? ADMIN_SECTIONS : VALID_SECTIONS;
+      if (validSections.includes(hash as any)) {
         setSection(hash);
       }
     };
@@ -66,14 +83,36 @@ const App: React.FC = () => {
   // Handler for admin logout
   const handleAdminLogout = () => {
     setIsAdmin(false);
-    setSection('projects');
-    window.location.hash = 'projects';
+    setSection('landing');
+    window.location.hash = 'landing';
   };
 
   const handleProjectAdded = () => {
-    // Force refresh of projects list
     setProjectsRefreshKey(prev => prev + 1);
   };
+
+  // Navigation button component
+  const NavButton = ({ sectionName, children }: { sectionName: string; children: React.ReactNode }) => (
+    <button
+      className={`nav-btn${section === sectionName ? ' active' : ''}`}
+      onClick={() => handleSectionChange(sectionName)}
+    >
+      {children}
+    </button>
+  );
+
+  // Logo component
+  const Logo = () => (
+    <div className="logo">
+      <div className="logo-icon">
+        <div className="logo-line logo-line-1"></div>
+        <div className="logo-line logo-line-2"></div>
+        <div className="logo-line logo-line-3"></div>
+        <div className="logo-k"></div>
+      </div>
+      <span className="logo-text">kadin.me</span>
+    </div>
+  );
 
   return (
     <div className="app-bg">
@@ -81,43 +120,16 @@ const App: React.FC = () => {
       <nav className="navbar">
         <div className="navbar-inner">
           <button className="nav-name" onClick={() => handleSectionChange('landing')}>
-            <div className="logo">
-              <div className="logo-icon">
-                <div className="logo-line logo-line-1"></div>
-                <div className="logo-line logo-line-2"></div>
-                <div className="logo-line logo-line-3"></div>
-                <div className="logo-k"></div>
-              </div>
-              <span className="logo-text">kadin.me</span>
-            </div>
+            <Logo />
           </button>
           <div className="nav-buttons">
-            {/* <button
-              className={`nav-btn${section === 'projects' ? ' active' : ''}`}
-              onClick={() => handleSectionChange('projects')}
-            >
-              Projects
-            </button> */}
-            <button
-              className={`nav-btn${section === 'github' ? ' active' : ''}`}
-              onClick={() => handleSectionChange('github')}
-            >
-              GitHub
-            </button>
+            <NavButton sectionName="github">GitHub</NavButton>
             {isAdmin && (
-              <button
-                className={`nav-btn${section === 'add' ? ' active' : ''}`}
-                onClick={() => handleSectionChange('add')}
-              >
-                Add Project
-              </button>
+              <NavButton sectionName="add">Add Project</NavButton>
             )}
-            <button
-              className={`nav-btn${section === 'admin' ? ' active' : ''}`}
-              onClick={handleAdminClick}
-            >
+            <NavButton sectionName="admin">
               {isAdmin ? 'Admin' : 'Login'}
-            </button>
+            </NavButton>
           </div>
           <button 
             className="mobile-menu-btn"
@@ -130,7 +142,7 @@ const App: React.FC = () => {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-menu open">
           <button 
             className="mobile-menu-close"
             onClick={() => setMobileMenuOpen(false)}
@@ -138,38 +150,14 @@ const App: React.FC = () => {
             ×
           </button>
           <div className="mobile-menu-content">
-            <button
-              className={`nav-btn${section === 'landing' ? ' active' : ''}`}
-              onClick={() => handleSectionChange('landing')}
-            >
-              Home
-            </button>
-            {/* <button
-              className={`nav-btn${section === 'projects' ? ' active' : ''}`}
-              onClick={() => handleSectionChange('projects')}
-            >
-              Projects
-            </button> */}
-            <button
-              className={`nav-btn${section === 'github' ? ' active' : ''}`}
-              onClick={() => handleSectionChange('github')}
-            >
-              GitHub
-            </button>
+            <NavButton sectionName="landing">Home</NavButton>
+            <NavButton sectionName="github">GitHub</NavButton>
             {isAdmin && (
-              <button
-                className={`nav-btn${section === 'add' ? ' active' : ''}`}
-                onClick={() => handleSectionChange('add')}
-              >
-                Add Project
-              </button>
+              <NavButton sectionName="add">Add Project</NavButton>
             )}
-            <button
-              className={`nav-btn${section === 'admin' ? ' active' : ''}`}
-              onClick={handleAdminClick}
-            >
+            <NavButton sectionName="admin">
               {isAdmin ? 'Admin' : 'Login'}
-            </button>
+            </NavButton>
           </div>
         </div>
       )}
@@ -181,9 +169,6 @@ const App: React.FC = () => {
             <LandingPage />
           </section>
         )}
-        {/* <section className={`content-section${section === 'projects' ? ' active' : ''}`}>
-          <Projects refreshKey={projectsRefreshKey} />
-        </section> */}
         <section className={`content-section${section === 'github' ? ' active' : ''}`}>
           <GitHub />
         </section>

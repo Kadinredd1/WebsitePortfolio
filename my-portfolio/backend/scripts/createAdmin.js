@@ -24,7 +24,7 @@ async function createAdmin() {
     const superAdmin = new Admin({
       username: process.env.ADMIN_USERNAME,
       email: process.env.ADMIN_EMAIL,
-      password: process.env.ADMIN_PASSWORD, // Change this in production!
+      password: process.env.ADMIN_PASSWORD,
       role: 'super_admin',
       isActive: true
     });
@@ -32,7 +32,7 @@ async function createAdmin() {
     await superAdmin.save();
 
   } catch (error) {
-    console.error('❌ Error creating admin:', error);
+    console.error(' Error creating admin:', error);
   } finally {
     await mongoose.disconnect();
     console.log('🔌 Disconnected from MongoDB');
