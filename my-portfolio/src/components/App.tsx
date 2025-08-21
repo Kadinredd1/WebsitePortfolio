@@ -11,15 +11,12 @@ const App: React.FC = () => {
   const [projectsRefreshKey, setProjectsRefreshKey] = React.useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
-  // Valid sections configuration
-  const VALID_SECTIONS = ['landing', 'projects', 'github', 'admin'] as const;
-  const ADMIN_SECTIONS = [...VALID_SECTIONS, 'add'] as const;
-
   // Get initial section from URL hash or default to 'landing'
   const getInitialSection = (): string => {
     const hash = window.location.hash.replace('#', '');
-    const validSections = isAdmin ? ADMIN_SECTIONS : VALID_SECTIONS;
-    return validSections.includes(hash as any) ? hash : 'landing';
+    const validSections = ['landing', 'projects', 'github', 'admin'];
+    if (isAdmin) validSections.push('add');
+    return validSections.includes(hash) ? hash : 'landing';
   };
 
   const [section, setSection] = React.useState(getInitialSection);
@@ -58,8 +55,9 @@ const App: React.FC = () => {
   React.useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      const validSections = isAdmin ? ADMIN_SECTIONS : VALID_SECTIONS;
-      if (validSections.includes(hash as any)) {
+      const validSections = ['landing', 'projects', 'github', 'admin'];
+      if (isAdmin) validSections.push('add');
+      if (validSections.includes(hash)) {
         setSection(hash);
       }
     };

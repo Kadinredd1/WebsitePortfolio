@@ -455,11 +455,11 @@ $shadow-heavy: 0 25px 50px rgba(0, 0, 0, 0.4);
             }
             
             &.github::before {
-              content: '🔗 ';
+              content: 'Link ';
             }
             
             &.demo::before {
-              content: '🚀 ';
+              content: 'Live ';
             }
           }
         }
