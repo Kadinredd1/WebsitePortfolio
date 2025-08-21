@@ -173,6 +173,7 @@ const App: React.FC = () => {
             <Admin
               onLogin={handleAdminLogin}
               onLogout={handleAdminLogout}
+              isAdmin={isAdmin}
             />
           </section>
         )}
