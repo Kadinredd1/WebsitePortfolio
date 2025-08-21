@@ -1,5 +1,4 @@
 import React from 'react';
-import Projects from './Projects';
 import GitHub from './GitHub';
 import AddProject from './AddProject';
 import Admin from './Admin';
@@ -8,7 +7,6 @@ import '../styles/navigation.scss';
 
 const App: React.FC = () => {
   const [isAdmin, setIsAdmin] = React.useState(false);
-  const [projectsRefreshKey, setProjectsRefreshKey] = React.useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   // Get initial section from URL hash or default to 'landing'
@@ -66,11 +64,6 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [isAdmin]);
 
-  // Handler for admin/login button
-  const handleAdminClick = () => {
-    handleSectionChange('admin');
-  };
-
   // Handler for successful admin login
   const handleAdminLogin = () => {
     setIsAdmin(true);
@@ -86,7 +79,7 @@ const App: React.FC = () => {
   };
 
   const handleProjectAdded = () => {
-    setProjectsRefreshKey(prev => prev + 1);
+    // Force refresh of projects list
   };
 
   // Navigation button component
@@ -180,7 +173,6 @@ const App: React.FC = () => {
             <Admin
               onLogin={handleAdminLogin}
               onLogout={handleAdminLogout}
-              isAdmin={isAdmin}
             />
           </section>
         )}

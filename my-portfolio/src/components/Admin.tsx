@@ -5,7 +5,6 @@ import '../styles/admin.scss';
 interface AdminProps {
   onLogin: () => void;
   onLogout: () => void;
-  isAdmin: boolean;
 }
 
 interface Admin {
@@ -30,9 +29,8 @@ interface LoginForm {
   password: string;
 }
 
-const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
+const Admin: React.FC<AdminProps> = ({ onLogin, onLogout }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [admin, setAdmin] = useState<Admin | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -58,7 +56,6 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
       
       if (data.authenticated) {
         setIsLoggedIn(true);
-        setAdmin(data.user);
         fetchProjects();
         onLogin();
       }
@@ -87,7 +84,6 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
       if (response.ok) {
         localStorage.setItem('adminToken', data.token);
         setIsLoggedIn(true);
-        setAdmin(data.admin);
         setLoginForm({ username: '', password: '' });
         fetchProjects();
         onLogin();
@@ -119,7 +115,6 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
     } finally {
       localStorage.removeItem('adminToken');
       setIsLoggedIn(false);
-      setAdmin(null);
       setProjects([]);
       onLogout();
     }
