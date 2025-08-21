@@ -53,12 +53,12 @@ router.get('/profile', authenticateToken, (req, res) => {
   });
 });
 
-// Admin logout (client-side token removal)
+// Admin logout
 router.post('/logout', authenticateToken, (req, res) => {
   res.json({ message: 'Logout successful' });
 });
 
-// Create new admin (super admin only)
+// Create new admin
 router.post('/create', authenticateToken, requireRole(['super_admin']), async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
@@ -95,7 +95,7 @@ router.post('/create', authenticateToken, requireRole(['super_admin']), async (r
   }
 });
 
-// Get all admins (super admin only)
+// Get all admins
 router.get('/list', authenticateToken, requireRole(['super_admin']), async (req, res) => {
   try {
     const admins = await Admin.find().select('-password').sort({ createdAt: -1 });
@@ -105,7 +105,7 @@ router.get('/list', authenticateToken, requireRole(['super_admin']), async (req,
   }
 });
 
-// Update admin status (super admin only)
+// Update admin status
 router.patch('/:id/status', authenticateToken, requireRole(['super_admin']), async (req, res) => {
   try {
     const { isActive } = req.body;

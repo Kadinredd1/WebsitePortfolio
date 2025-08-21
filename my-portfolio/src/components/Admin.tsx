@@ -32,7 +32,6 @@ interface Project {
 
 const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [admin, setAdmin] = useState<Admin | null>(null);
   const [loginForm, setLoginForm] = useState<LoginForm>({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,19 +66,16 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
       
       if (data.authenticated) {
         setIsLoggedIn(true);
-        setAdmin(data.user);
         fetchProjects();
         if (onLogin) onLogin();
       } else {
         localStorage.removeItem('adminToken');
         setIsLoggedIn(false);
-        setAdmin(null);
       }
     } catch (error) {
       console.error('Auth check error:', error);
       localStorage.removeItem('adminToken');
       setIsLoggedIn(false);
-      setAdmin(null);
     }
   };
 
@@ -101,7 +97,6 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
 
       if (response.ok) {
         localStorage.setItem('adminToken', data.token);
-        setAdmin(data.admin);
         setIsLoggedIn(true);
         setLoginForm({ username: '', password: '' });
         fetchProjects();
@@ -132,7 +127,6 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
     } finally {
       localStorage.removeItem('adminToken');
       setIsLoggedIn(false);
-      setAdmin(null);
       setProjects([]);
       if (onLogout) onLogout();
     }
@@ -182,8 +176,6 @@ const Admin: React.FC<AdminProps> = ({ onLogin, onLogout, isAdmin }) => {
     alert('Edit functionality coming soon!');
   };
 
-  console.log('Admin component state:', { isLoggedIn, isAdmin, loading, error });
-  
   if (!isLoggedIn) {
     return (
       <div className="admin-container">

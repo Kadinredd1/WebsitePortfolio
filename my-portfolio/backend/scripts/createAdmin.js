@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio')
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
   })
@@ -15,7 +15,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio
     process.exit(1);
   });
 
-// Admin schema (same as in models/Admin.js)
+// Admin schema
 const adminSchema = new mongoose.Schema({
   username: {
     type: String,

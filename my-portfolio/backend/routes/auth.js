@@ -13,30 +13,23 @@ router.get('/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   async (req, res) => {
     try {
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        throw new Error('JWT_SECRET not configured');
-      }
-
       // Generate JWT token for GitHub users
       const token = jwt.sign(
         { adminId: req.user._id },
-        jwtSecret,
+        process.env.JWT_SECRET,
         { expiresIn: '24h' }
       );
       
-      // Redirect to frontend with success and token
-      const frontendUrl = process.env.FRONTEND_URL || 'https://kredd.dev';
-      res.redirect(`${frontendUrl}/admin?login=success&token=${token}`);
+      // Redirect back to the frontend with admin hash
+      res.redirect(`${process.env.FRONTEND_URL}/#admin?login=success&token=${token}`);
     } catch (error) {
       console.error('GitHub OAuth callback error:', error);
-      const frontendUrl = process.env.FRONTEND_URL || 'https://kredd.dev';
-      res.redirect(`${frontendUrl}/admin?login=error&message=Authentication failed`);
+      res.redirect(`${process.env.FRONTEND_URL}/#admin?login=error&message=Authentication failed`);
     }
   }
 );
 
-// Check if user is authenticated (supports both session and JWT)
+// Check if user is authenticated
 router.get('/status', async (req, res) => {
   try {
     // Check session-based auth (GitHub OAuth)
@@ -57,8 +50,7 @@ router.get('/status', async (req, res) => {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
         const token = authHeader.substring(7);
-        const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
-        const decoded = jwt.verify(token, jwtSecret);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const admin = await Admin.findById(decoded.adminId);
         
         if (admin && admin.isActive) {

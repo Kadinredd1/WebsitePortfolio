@@ -11,7 +11,7 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configure multer for memory storage (for Cloudinary)
+// Configure multer for memory storage
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: {
@@ -30,7 +30,7 @@ const upload = multer({
   }
 });
 
-// Function to upload image to Cloudinary
+// Upload image to Cloudinary
 const uploadToCloudinary = async (file, folder = 'portfolio') => {
   try {
     // Resize image for project cards
@@ -66,6 +66,16 @@ const uploadToCloudinary = async (file, folder = 'portfolio') => {
   }
 };
 
+// Parse JSON arrays from form data
+const parseJsonArrays = (data) => {
+  return {
+    technologies: data.technologies ? JSON.parse(data.technologies) : [],
+    features: data.features ? JSON.parse(data.features) : [],
+    challenges: data.challenges ? JSON.parse(data.challenges) : [],
+    lessons: data.lessons ? JSON.parse(data.lessons) : []
+  };
+};
+
 // GET all projects
 router.get('/', async (req, res) => {
   try {
@@ -89,7 +99,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create new project (admin only)
+// POST create new project
 router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), upload.array('images'), async (req, res) => {
   try {
     const {
@@ -106,25 +116,21 @@ router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), uploa
       lessons
     } = req.body;
 
-    // Parse JSON arrays
-    const parsedTechnologies = technologies ? JSON.parse(technologies) : [];
-    const parsedFeatures = features ? JSON.parse(features) : [];
-    const parsedChallenges = challenges ? JSON.parse(challenges) : [];
-    const parsedLessons = lessons ? JSON.parse(lessons) : [];
+    const parsedArrays = parseJsonArrays(req.body);
 
     // Create project data
     const projectData = {
       title,
       description,
       longDescription,
-      technologies: parsedTechnologies,
+      technologies: parsedArrays.technologies,
       projectURL,
       demoURL,
       status,
       completion: parseInt(completion) || 0,
-      features: parsedFeatures,
-      challenges: parsedChallenges,
-      lessons: parsedLessons
+      features: parsedArrays.features,
+      challenges: parsedArrays.challenges,
+      lessons: parsedArrays.lessons
     };
 
     // Upload images to Cloudinary if files were uploaded
@@ -155,7 +161,7 @@ router.post('/', authenticateToken, requireRole(['admin', 'super_admin']), uploa
   }
 });
 
-// PUT update project (admin only)
+// PUT update project
 router.put('/:id', authenticateToken, requireRole(['admin', 'super_admin']), upload.array('images'), async (req, res) => {
   try {
     const {
@@ -172,24 +178,20 @@ router.put('/:id', authenticateToken, requireRole(['admin', 'super_admin']), upl
       lessons
     } = req.body;
 
-    // Parse JSON arrays
-    const parsedTechnologies = technologies ? JSON.parse(technologies) : [];
-    const parsedFeatures = features ? JSON.parse(features) : [];
-    const parsedChallenges = challenges ? JSON.parse(challenges) : [];
-    const parsedLessons = lessons ? JSON.parse(lessons) : [];
+    const parsedArrays = parseJsonArrays(req.body);
 
     const updateData = {
       title,
       description,
       longDescription,
-      technologies: parsedTechnologies,
+      technologies: parsedArrays.technologies,
       projectURL,
       demoURL,
       status,
       completion: parseInt(completion) || 0,
-      features: parsedFeatures,
-      challenges: parsedChallenges,
-      lessons: parsedLessons
+      features: parsedArrays.features,
+      challenges: parsedArrays.challenges,
+      lessons: parsedArrays.lessons
     };
 
     // Upload new images to Cloudinary if files were uploaded
@@ -226,7 +228,7 @@ router.put('/:id', authenticateToken, requireRole(['admin', 'super_admin']), upl
   }
 });
 
-// DELETE project (admin only)
+// DELETE project
 router.delete('/:id', authenticateToken, requireRole(['admin', 'super_admin']), async (req, res) => {
   try {
     const project = await Project.findByIdAndDelete(req.params.id);

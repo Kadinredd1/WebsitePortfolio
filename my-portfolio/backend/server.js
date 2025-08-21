@@ -21,13 +21,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 console.log('Starting server...');
-console.log('Current directory:', __dirname);
 console.log('Environment:', process.env.NODE_ENV || 'development');
 console.log('Port:', PORT);
 
 // Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -42,9 +41,9 @@ app.use(passport.session());
 
 // GitHub OAuth Strategy
 passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_CLIENT_ID || 'dummy-client-id',
-  clientSecret: process.env.GITHUB_CLIENT_SECRET || 'dummy-client-secret',
-  callbackURL: process.env.GITHUB_CALLBACK_URL || `${process.env.API_BASE_URL || 'http://localhost:5000'}/auth/github/callback`
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: process.env.GITHUB_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check if admin exists with this GitHub ID
@@ -86,7 +85,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Middleware
+// CORS configuration
 const allowedOrigins = [
   'http://localhost:5173',
   'https://kredd.dev'
@@ -94,7 +93,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.indexOf(origin) !== -1) {
@@ -106,13 +104,12 @@ app.use(cors({
   },
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio';
-
-mongoose.connect(MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB successfully');
   })
@@ -120,22 +117,23 @@ mongoose.connect(MONGODB_URI)
     console.error('MongoDB connection error:', error);
   });
 
-// Debug middleware to log all requests
-// app.use((req, res, next) => {
-//   console.log(`${req.method} ${req.path}`);
-//   next();
-// });
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ message: 'Backend server is running!' });
 });
 
-// Test route to verify server is working
+// Test route
 app.get('/test', (req, res) => {
   res.json({ message: 'Server is working!' });
 });

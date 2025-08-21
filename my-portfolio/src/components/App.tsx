@@ -35,17 +35,20 @@ const App: React.FC = () => {
 
   // Handle GitHub OAuth callback
   React.useEffect(() => {
+    // Check both search params and hash params
     const urlParams = new URLSearchParams(window.location.search);
-    const loginSuccess = urlParams.get('login');
-    const token = urlParams.get('token');
+    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    
+    const loginSuccess = urlParams.get('login') || hashParams.get('login');
+    const token = urlParams.get('token') || hashParams.get('token');
     
     if (loginSuccess === 'success' && token) {
       localStorage.setItem('adminToken', token);
       setIsAdmin(true);
       setSection('admin');
       
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      // Clean up URL and redirect to admin section
+      window.history.replaceState({}, document.title, window.location.pathname + '#admin');
     }
   }, []);
 
