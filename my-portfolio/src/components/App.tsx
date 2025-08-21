@@ -1,5 +1,5 @@
 import React from 'react';
-import Projects from './Projects';
+//import Projects from './Projects';
 import GitHub from './GitHub';
 import AddProject from './AddProject';
 import Admin from './Admin';
@@ -9,7 +9,7 @@ import '../styles/navigation.scss';
 const App: React.FC = () => {
   // Admin authentication state
   const [isAdmin, setIsAdmin] = React.useState(false);
-  const [projectsRefreshKey, setProjectsRefreshKey] = React.useState(0);
+  const [{/*projectsRefreshKey*/}, setProjectsRefreshKey] = React.useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   // Get initial section from URL hash or default to 'projects'
@@ -32,7 +32,7 @@ const App: React.FC = () => {
   // Set initial hash if none exists
   React.useEffect(() => {
     if (!window.location.hash) {
-      window.location.hash = 'projects';
+      window.location.hash = 'landing';
     }
   }, []);
 
