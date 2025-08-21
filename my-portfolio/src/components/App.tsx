@@ -32,7 +32,7 @@ const App: React.FC = () => {
   // Set initial hash if none exists
   React.useEffect(() => {
     if (!window.location.hash) {
-      window.location.hash = 'projects';
+      window.location.hash = 'landing';
     }
   }, []);
 
