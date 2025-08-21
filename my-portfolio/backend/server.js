@@ -41,34 +41,39 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // GitHub OAuth Strategy
-passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_CLIENT_ID,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: process.env.GITHUB_CALLBACK_URL || `${process.env.API_BASE_URL || 'http://localhost:5000'}/auth/github/callback`
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    // Check if admin exists with this GitHub ID
-    const Admin = mongoose.model('Admin');
-    let admin = await Admin.findOne({ githubId: profile.id });
-    
-    if (!admin) {
-      // Create new admin if they don't exist
-      admin = new Admin({
-        githubId: profile.id,
-        githubUsername: profile.username,
-        username: profile.username,
-        email: profile.emails[0]?.value,
-        role: 'admin',
-        isActive: true
-      });
-      await admin.save();
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+  passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: process.env.GITHUB_CALLBACK_URL || `${process.env.API_BASE_URL || 'http://localhost:5000'}/auth/github/callback`
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      // Check if admin exists with this GitHub ID
+      const Admin = mongoose.model('Admin');
+      let admin = await Admin.findOne({ githubId: profile.id });
+      
+      if (!admin) {
+        // Create new admin if they don't exist
+        admin = new Admin({
+          githubId: profile.id,
+          githubUsername: profile.username,
+          username: profile.username,
+          email: profile.emails[0]?.value,
+          role: 'admin',
+          isActive: true
+        });
+        await admin.save();
+      }
+      
+      return done(null, admin);
+    } catch (error) {
+      return done(error, null);
     }
-    
-    return done(null, admin);
-  } catch (error) {
-    return done(error, null);
-  }
-}));
+  }));
+  console.log(' GitHub OAuth strategy configured');
+} else {
+  console.log(' GitHub OAuth not configured - missing GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET');
+}
 
 // Serialize user for session
 passport.serializeUser((user, done) => {

@@ -1,8 +1,5 @@
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
-import passport from 'passport';
-import GitHubStrategy from 'passport-github2';
-
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
@@ -55,14 +52,5 @@ export const requireRole = (roles) => {
 export const generateToken = (adminId) => {
   return jwt.sign({ adminId }, JWT_SECRET, { expiresIn: '24h' });
 };
-
-passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_CLIENT_ID,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: '/auth/github/callback'
-}, (accessToken, refreshToken, profile, done) => {
-  console.log(profile);
-  done(null, profile);
-}));
 
 export { JWT_SECRET }; 
