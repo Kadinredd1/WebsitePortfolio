@@ -46,17 +46,24 @@ passport.use(new GitHubStrategy({
   callbackURL: process.env.GITHUB_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
+    console.log('GitHub profile:', {
+      id: profile.id,
+      username: profile.username,
+      emails: profile.emails
+    });
+    
     // Check if admin exists with this GitHub ID
     const Admin = mongoose.model('Admin');
     let admin = await Admin.findOne({ githubId: profile.id });
     
     if (!admin) {
       // Create new admin if they don't exist
+      const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
       admin = new Admin({
         githubId: profile.id,
         githubUsername: profile.username,
         username: profile.username,
-        email: profile.emails[0]?.value,
+        email: email,
         role: 'admin',
         isActive: true
       });
@@ -85,23 +92,9 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://kredd.dev'
-];
-
+// CORS configuration - allow all origins
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true,
   credentials: true
 }));
 
@@ -117,11 +110,6 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('MongoDB connection error:', error);
   });
 
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
-  next();
-});
 
 // Routes
 app.use('/auth', authRoutes);

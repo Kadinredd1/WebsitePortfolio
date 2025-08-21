@@ -13,6 +13,17 @@ router.get('/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   async (req, res) => {
     try {
+      console.log('GitHub OAuth callback - user:', req.user);
+      
+      // Check if FRONTEND_URL is set
+      if (!process.env.FRONTEND_URL) {
+        console.error('FRONTEND_URL environment variable is not set');
+        return res.status(500).json({ 
+          message: 'Server configuration error',
+          error: 'FRONTEND_URL not configured'
+        });
+      }
+      
       // Generate JWT token for GitHub users
       const token = jwt.sign(
         { adminId: req.user._id },
@@ -20,10 +31,20 @@ router.get('/github/callback',
         { expiresIn: '24h' }
       );
       
+      console.log('Generated token, redirecting to:', `${process.env.FRONTEND_URL}/#admin?login=success&token=${token}`);
+      
       // Redirect back to the frontend with admin hash
       res.redirect(`${process.env.FRONTEND_URL}/#admin?login=success&token=${token}`);
     } catch (error) {
       console.error('GitHub OAuth callback error:', error);
+      
+      if (!process.env.FRONTEND_URL) {
+        return res.status(500).json({ 
+          message: 'Server configuration error',
+          error: 'FRONTEND_URL not configured'
+        });
+      }
+      
       res.redirect(`${process.env.FRONTEND_URL}/#admin?login=error&message=Authentication failed`);
     }
   }
