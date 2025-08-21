@@ -9,7 +9,7 @@ import '../styles/navigation.scss';
 const App: React.FC = () => {
   // Admin authentication state
   const [isAdmin, setIsAdmin] = React.useState(false);
-  const [projectsRefreshKey, setProjectsRefreshKey] = React.useState(0);
+  const [{/*projectsRefreshKey*/}, setProjectsRefreshKey] = React.useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   // Get initial section from URL hash or default to 'projects'
