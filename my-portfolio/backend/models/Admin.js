@@ -12,15 +12,37 @@ const adminSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: false, // Optional for GitHub OAuth users
     unique: true,
+    sparse: true, // Allow multiple null values
     trim: true,
-    lowercase: true
+    lowercase: true,
+    validate: {
+      validator: function(v) {
+        // If email is provided, it must be a valid email format
+        if (v) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(v);
+        }
+        return true; // Allow null/undefined emails
+      },
+      message: 'Please provide a valid email address'
+    }
   },
   password: {
     type: String,
-    required: true,
+    required: false, // Optional for GitHub OAuth
     minlength: 6
+  },
+  // GitHub OAuth fields
+  githubId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  githubUsername: {
+    type: String,
+    trim: true
   },
   role: {
     type: String,
@@ -39,21 +61,27 @@ const adminSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving
+// Validate that admin has either password or GitHub ID
 adminSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
+  if (!this.password && !this.githubId) {
+    return next(new Error('Admin must have either a password or GitHub ID'));
   }
+  
+  if (this.password && this.isModified('password')) {
+    try {
+      const salt = await bcrypt.genSalt(12);
+      this.password = await bcrypt.hash(this.password, salt);
+    } catch (error) {
+      return next(error);
+    }
+  }
+  
+  next();
 });
 
 // Method to compare passwords
 adminSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 

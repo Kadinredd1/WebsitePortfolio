@@ -5,8 +5,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import multer from 'multer';
+import session from 'express-session';
+import passport from 'passport';
+import GitHubStrategy from 'passport-github2';
 import projectRoutes from './routes/projects.js';
 import adminRoutes from './routes/admin.js';
+import authRoutes from './routes/auth.js';
 
 // Load environment variables
 dotenv.config();
@@ -16,15 +20,89 @@ const PORT = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
-app.use(cors());
+console.log('Starting server...');
+console.log('Environment:', process.env.NODE_ENV || 'development');
+console.log('Port:', PORT);
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport configuration
+app.use(passport.initialize());
+app.use(passport.session());
+
+// GitHub OAuth Strategy
+passport.use(new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: process.env.GITHUB_CALLBACK_URL
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    console.log('GitHub profile:', {
+      id: profile.id,
+      username: profile.username,
+      emails: profile.emails
+    });
+    
+    // Check if admin exists with this GitHub ID
+    const Admin = mongoose.model('Admin');
+    let admin = await Admin.findOne({ githubId: profile.id });
+    
+    if (!admin) {
+      // Create new admin if they don't exist
+      const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+      admin = new Admin({
+        githubId: profile.id,
+        githubUsername: profile.username,
+        username: profile.username,
+        email: email,
+        role: 'admin',
+        isActive: true
+      });
+      await admin.save();
+    }
+    
+    return done(null, admin);
+  } catch (error) {
+    return done(error, null);
+  }
+}));
+
+// Serialize user for session
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+// Deserialize user from session
+passport.deserializeUser(async (id, done) => {
+  try {
+    const Admin = mongoose.model('Admin');
+    const user = await Admin.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
+});
+
+// CORS configuration - allow all origins
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio';
-
-mongoose.connect(MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB successfully');
   })
@@ -32,17 +110,20 @@ mongoose.connect(MONGODB_URI)
     console.error('MongoDB connection error:', error);
   });
 
+
 // Routes
+app.use('/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    message: 'Backend server is running!',
-    timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  });
+  res.json({ message: 'Backend server is running!' });
+});
+
+// Test route
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is working!' });
 });
 
 // Error handling middleware
@@ -63,11 +144,17 @@ app.use((error, req, res, next) => {
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  console.log(`Route not found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ 
+    message: 'Route not found',
+    path: req.originalUrl,
+    method: req.method
+  });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
-  console.log(`Network accessible at http://10.0.0.204:${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Auth routes: /auth/github, /auth/github/callback, /auth/status, /auth/logout`);
+  console.log(`API routes: /api/projects, /api/admin, /api/health`);
 });
