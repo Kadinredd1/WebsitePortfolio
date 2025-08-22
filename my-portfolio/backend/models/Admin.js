@@ -12,10 +12,22 @@ const adminSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: false, // Optional for GitHub OAuth users
     unique: true,
+    sparse: true, // Allow multiple null values
     trim: true,
-    lowercase: true
+    lowercase: true,
+    validate: {
+      validator: function(v) {
+        // If email is provided, it must be a valid email format
+        if (v) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(v);
+        }
+        return true; // Allow null/undefined emails
+      },
+      message: 'Please provide a valid email address'
+    }
   },
   password: {
     type: String,
