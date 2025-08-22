@@ -104,7 +104,7 @@ const App: React.FC = () => {
         <div className="logo-line logo-line-3"></div>
         <div className="logo-k"></div>
       </div>
-      <span className="logo-text">kadin.me</span>
+      <span className="logo-text">kredd.dev</span>
     </div>
   );
 

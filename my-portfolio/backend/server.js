@@ -52,6 +52,18 @@ passport.use(new GitHubStrategy({
       emails: profile.emails
     });
     
+    // Check if this GitHub user is allowed to access admin
+    const allowedGitHubIds = process.env.ALLOWED_GITHUB_IDS?.split(',') || [];
+    const allowedUsernames = process.env.ALLOWED_GITHUB_USERNAMES?.split(',') || [];
+    
+    const isAllowed = allowedGitHubIds.includes(profile.id.toString()) || 
+                     allowedUsernames.includes(profile.username);
+    
+    if (!isAllowed) {
+      console.log('GitHub user not authorized:', profile.username, profile.id);
+      return done(new Error('Access denied. You are not authorized to access the admin panel.'), null);
+    }
+    
     // Check if admin exists with this GitHub ID
     const Admin = mongoose.model('Admin');
     let admin = await Admin.findOne({ githubId: profile.id });
